@@ -1,0 +1,181 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the onavsim_pi package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: onavsim_pi 0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-08-01 20:50+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/onavsimUIDialog.cpp:255
+msgid ""
+"Tidal Current\n"
+"------------------------------------------------------\n"
+"\n"
+"\n"
+"\n"
+"\n"
+"\n"
+"Use this data with caution.\n"
+"Use in conjunction with Tidal Current Atlases and Tidal Diamonds\n"
+"\n"
+"------------------------------------------------------\n"
+"\n"
+"Note: 1 Rates shown are for a position corresponding to the centre\n"
+"of the base of the arrow. Tidal rate is shown as knots.\n"
+"\n"
+msgstr ""
+
+#: src/onavsimUIDialog.cpp:256
+msgid "About Tidal Arrows"
+msgstr ""
+
+#: src/onavsimUIDialog.h:118
+msgid "Currents"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:21
+msgid "Date/Time"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:23
+msgid "Day"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:40 src/onavsimUIDialogBase.cpp:45
+msgid "Help"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:59
+msgid "Start Driving"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:66
+msgid "Stop Driving"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:76
+msgid "Direction"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:83
+msgid "Speed"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:134
+msgid "Display tidal rates (knots)"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:137
+msgid "Display tidal direction"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:140
+msgid "Fill Colour"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:143
+msgid "High Resolution Display"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:153
+msgid "Tidal Current Arrow Colour"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:161
+msgid "      < 0.5 knots"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:168
+msgid ">= 0.5 and < 1.5"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:175
+msgid ">= 1.5 and < 2.5"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:182
+msgid ">= 2.5 and < 3.5"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:189
+msgid ">= 3.5 knots    "
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:203
+msgid "Arrow Scaling"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:211
+msgid "Scale   x"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:215
+msgid "1"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:215
+msgid "2"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:215
+msgid "3"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:215
+msgid "4"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:215
+msgid "5"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:215
+msgid "6"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:215
+msgid "7"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:215
+msgid "8"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:215
+msgid "9"
+msgstr ""
+
+#: src/onavsimUIDialogBase.cpp:215
+msgid "10"
+msgstr ""
+
+#: src/onavsimUIDialogBase.h:109
+msgid "Preferences"
+msgstr ""
+
+#: src/onavsim_pi.cpp:134 src/onavsim_pi.cpp:137
+msgid "onavsim"
+msgstr ""
+
+#: src/onavsim_pi.cpp:199
+msgid "onavsim PlugIn for OpenCPN"
+msgstr ""
+
+#: src/onavsim_pi.cpp:205
+msgid ""
+"onavsim PlugIn for OpenCPN\n"
+"Provides an overlay of Tidal Current (Stream) Arrows.\n"
+"\n"
+"\t\t\t   "
+msgstr ""

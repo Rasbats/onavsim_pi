@@ -3,7 +3,7 @@ src/icons.h
 src/resource.h
 src/tcmgr.cpp
 src/tcmgr.h
-src/onavsimtOverlayFactory.cpp
+src/onavsimOverlayFactory.cpp
 src/onavsimOverlayFactory.h
 src/onavsimUIDialog.cpp
 src/onavsimUIDialog.h
