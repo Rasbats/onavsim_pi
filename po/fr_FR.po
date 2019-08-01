@@ -1,0 +1,184 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: opencpn\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-02-08 11:06-0300\n"
+"PO-Revision-Date: 2018-02-08 09:11-0500\n"
+"Last-Translator: nohal <pavel@kalian.cz>\n"
+"Language-Team: French\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: opencpn\n"
+"X-Crowdin-Language: fr\n"
+"X-Crowdin-File: /plugins/otcurrent_pi/po/otcurrent_pi.pot\n"
+#
+msgid "      < 0.5 knots"
+msgstr "      < 0.5 noeud"
+#
+msgid "(UTC)"
+msgstr ""
+#
+msgid "1"
+msgstr ""
+#
+msgid "10"
+msgstr ""
+#
+msgid "15"
+msgstr ""
+#
+msgid "2"
+msgstr ""
+#
+msgid "3"
+msgstr ""
+#
+msgid "30"
+msgstr ""
+#
+msgid "4"
+msgstr ""
+#
+msgid "5"
+msgstr ""
+#
+msgid "6"
+msgstr ""
+#
+msgid "60"
+msgstr ""
+#
+msgid "7"
+msgstr ""
+#
+msgid "8"
+msgstr ""
+#
+msgid "9"
+msgstr ""
+#
+msgid ">= 0.5 and < 1.5"
+msgstr ">= 0.5 et < 1.5"
+#
+msgid ">= 1.5 and < 2.5"
+msgstr ">= 1.5 et < 2.5"
+#
+msgid ">= 2.5 and < 3.5"
+msgstr ">= 2.5 et < 3.5"
+#
+msgid ">= 3.5 knots    "
+msgstr ">= 3.5 noeuds    "
+#
+msgid "About Tidal Arrows"
+msgstr "Au sujet des flèches de marée"
+#
+msgid "Arrow Scaling"
+msgstr ""
+#
+msgid "Currents"
+msgstr "Courants"
+#
+msgid "Date/Time"
+msgstr "Date/Heure"
+#
+msgid "Day"
+msgstr "Jour"
+#
+msgid "Display tidal direction"
+msgstr "Afficher la direction des courants (degrés)"
+#
+msgid "Display tidal rates (knots)"
+msgstr "Afficher les vitesses des courants de marée  (noeuds)"
+#
+msgid "Fill Colour"
+msgstr "Remplissage en couleur des flèches"
+#
+msgid "Help"
+msgstr "Aide"
+#
+msgid "High Resolution Display"
+msgstr "Affichage haute résolution"
+#
+msgid "Next"
+msgstr "Prochain"
+#
+msgid "Now"
+msgstr "Maintenant"
+#
+msgid "Preferences"
+msgstr "Préferences"
+#
+msgid "Previous"
+msgstr "Précédent"
+#
+msgid "Scale   x"
+msgstr ""
+#
+msgid "Select a folder"
+msgstr "Choisissez un dossier"
+#
+msgid "Step (Minutes)"
+msgstr "Pas (Minutes)"
+#
+msgid ""
+"Tidal Current\n"
+"------------------------------------------------------\n"
+"\n"
+"\n"
+"\n"
+"\n"
+"\n"
+"Use this data with caution.\n"
+"Use in conjunction with Tidal Current Atlases and Tidal Diamonds\n"
+"\n"
+"------------------------------------------------------\n"
+"\n"
+"Note: 1 Rates shown are for a position corresponding to the centre\n"
+"of the base of the arrow. Tidal rate is shown as knots.\n"
+"\n"
+msgstr ""
+"Courant de marée \n"
+"------------------------------------------------------\n"
+"\n"
+"\n"
+"\n"
+"\n"
+"\n"
+" Utilisez ces données avec prudence. \n"
+" Utilisation en conjonction avec les atlas de marées et de courants \n"
+"\n"
+"------------------------------------------------------\n"
+"\n"
+" Remarque : 1 Les taux indiqués sont pour la position correspondant au\n"
+"centre de la base de la flèche. Le taux de marée est indiqué en nœuds. \n"
+"\n"
+#
+msgid "Tidal Current Arrow Colour"
+msgstr "Couleur de la flèche de courant"
+#
+msgid "Tidal Data Folder"
+msgstr "Dossier des données de marées"
+#
+msgid "Using Tide/Current data from:  "
+msgstr "Utilisation des données de marée/courant depuis :  "
+#
+msgid "otcurrent"
+msgstr "otcurrent"
+#
+msgid "otcurrent PlugIn for OpenCPN"
+msgstr "complément otcurrent pour OpenCPN"
+#
+msgid ""
+"otcurrent PlugIn for OpenCPN\n"
+"Provides an overlay of Tidal Current (Stream) Arrows.\n"
+"\n"
+"\t\t\t   "
+msgstr ""
+"Le complément otcurrent pour OpenCPN\n"
+"superpose des flèches indiquant les courants de marée (flux).\n"
+"\n"
+"\t\t\t   "

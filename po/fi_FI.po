@@ -1,0 +1,184 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: opencpn\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-02-08 11:06-0300\n"
+"PO-Revision-Date: 2018-02-08 09:10-0500\n"
+"Last-Translator: nohal <pavel@kalian.cz>\n"
+"Language-Team: Finnish\n"
+"Language: fi_FI\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: crowdin.com\n"
+"X-Crowdin-Project: opencpn\n"
+"X-Crowdin-Language: fi\n"
+"X-Crowdin-File: /plugins/otcurrent_pi/po/otcurrent_pi.pot\n"
+#
+msgid "      < 0.5 knots"
+msgstr "      < 0,5 solmua"
+#
+msgid "(UTC)"
+msgstr ""
+#
+msgid "1"
+msgstr ""
+#
+msgid "10"
+msgstr ""
+#
+msgid "15"
+msgstr ""
+#
+msgid "2"
+msgstr ""
+#
+msgid "3"
+msgstr ""
+#
+msgid "30"
+msgstr ""
+#
+msgid "4"
+msgstr ""
+#
+msgid "5"
+msgstr ""
+#
+msgid "6"
+msgstr ""
+#
+msgid "60"
+msgstr ""
+#
+msgid "7"
+msgstr ""
+#
+msgid "8"
+msgstr ""
+#
+msgid "9"
+msgstr ""
+#
+msgid ">= 0.5 and < 1.5"
+msgstr ">= 0.5 ja < 1.5"
+#
+msgid ">= 1.5 and < 2.5"
+msgstr ">= 1.5 ja < 2.5"
+#
+msgid ">= 2.5 and < 3.5"
+msgstr ">= 2.5 ja < 3.5"
+#
+msgid ">= 3.5 knots    "
+msgstr ">= 3.5 solmua    "
+#
+msgid "About Tidal Arrows"
+msgstr "Tietoja vuorovesi nuolista"
+#
+msgid "Arrow Scaling"
+msgstr ""
+#
+msgid "Currents"
+msgstr "Virtaukset"
+#
+msgid "Date/Time"
+msgstr "Päivämäärä/aika"
+#
+msgid "Day"
+msgstr "Päivä"
+#
+msgid "Display tidal direction"
+msgstr "Näytä vuoroveden suunta"
+#
+msgid "Display tidal rates (knots)"
+msgstr "Näytä vuorovesikertoimet (solmua)"
+#
+msgid "Fill Colour"
+msgstr "Täytä väri"
+#
+msgid "Help"
+msgstr "Ohje"
+#
+msgid "High Resolution Display"
+msgstr "Korkean resoluution näyttö"
+#
+msgid "Next"
+msgstr "Seuraava"
+#
+msgid "Now"
+msgstr "Nyt"
+#
+msgid "Preferences"
+msgstr "Asetukset"
+#
+msgid "Previous"
+msgstr "Edellinen"
+#
+msgid "Scale   x"
+msgstr ""
+#
+msgid "Select a folder"
+msgstr "Valitse kansio"
+#
+msgid "Step (Minutes)"
+msgstr "Väli (minuuttia)"
+#
+msgid ""
+"Tidal Current\n"
+"------------------------------------------------------\n"
+"\n"
+"\n"
+"\n"
+"\n"
+"\n"
+"Use this data with caution.\n"
+"Use in conjunction with Tidal Current Atlases and Tidal Diamonds\n"
+"\n"
+"------------------------------------------------------\n"
+"\n"
+"Note: 1 Rates shown are for a position corresponding to the centre\n"
+"of the base of the arrow. Tidal rate is shown as knots.\n"
+"\n"
+msgstr ""
+"Vuorovesi virtaus\n"
+"--------------------------------------------------------------\n"
+"\n"
+"\n"
+"\n"
+"\n"
+"\n"
+"Käytä tätä tietoa varauksella. \n"
+"Käytä yhdessä vuorovesivitauskartastojen ja vuorovesi ruutujen kanssa\n"
+"\n"
+"--------------------------------------------------------------\n"
+"\n"
+"Huomaa: 1 Lukemat on näytetty sijainnin suhteessa perusnuolen keskustaan.\n"
+"Vuorovesilukema näytetään solmuina.\n"
+"\n"
+#
+msgid "Tidal Current Arrow Colour"
+msgstr "Vuorovesivirran nuolenväri"
+#
+msgid "Tidal Data Folder"
+msgstr "Vuorovesi Datakansio"
+#
+msgid "Using Tide/Current data from:  "
+msgstr "Käytetään vuorovesi/virta tietoja lähteestä:  "
+#
+msgid "otcurrent"
+msgstr "vuorovesivirtaus"
+#
+msgid "otcurrent PlugIn for OpenCPN"
+msgstr "OpenCPN:n vuorovesivirtaus lisäosa"
+#
+msgid ""
+"otcurrent PlugIn for OpenCPN\n"
+"Provides an overlay of Tidal Current (Stream) Arrows.\n"
+"\n"
+"\t\t\t   "
+msgstr ""
+"OpenCPN vuorovesilisäosa\n"
+"Tuottaa vuorovesivirran suuntanuolien päällyskerroksen.\n"
+"\n"
+"\t\t\t   "
