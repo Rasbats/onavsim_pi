@@ -103,6 +103,8 @@ public:
 	void DrawAllCurrentsInViewPort(PlugIn_ViewPort *BBox, bool bRebuildSelList,
         bool bforce_redraw_currents, bool bdraw_mono_for_mask, wxDateTime myTime);
 
+	void DrawNavUnitInViewPort(double rot, int x, int y);
+
 	wxPoint ScaleCurrentArrow(int index, wxPoint myPoint, int scale);
 
     void Reset();
@@ -127,14 +129,13 @@ public:
 	bool              m_bShowFillColour;
 	wxString		  m_sShowScale;
 	wxDateTime        m_dtUseNew;
+	bool outsideChartScale;
 
 private:
 
 	bool inGL;
 	
-    bool DoRenderonavsimOverlay( PlugIn_ViewPort *vp );
-	void RenderMyArrows(PlugIn_ViewPort *vp );
-
+    bool DoRenderonavsimOverlay( PlugIn_ViewPort *vp );	
     void DrawMessageWindow( wxString msg, int x, int y , wxFont *mfont);
 
     wxColour GetSpeedColour(double my_speed);

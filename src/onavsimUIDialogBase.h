@@ -26,6 +26,7 @@
 #include <wx/icon.h>
 #include <wx/button.h>
 #include <wx/slider.h>
+#include <wx/textctrl.h>
 #include <wx/timer.h>
 #include <wx/dialog.h>
 #include <wx/checkbox.h>
@@ -54,8 +55,8 @@ class onavsimUIDialogBase : public wxDialog
 		virtual void OnSize( wxSizeEvent& event ) { event.Skip(); }
 		virtual void OnDateTimeChanged( wxDateEvent& event ) { event.Skip(); }
 		virtual void About( wxCommandEvent& event ) { event.Skip(); }
-		virtual void StartDriving( wxCommandEvent& event ) { event.Skip(); }
-		virtual void StopDriving( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnStartDriving( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnStopDriving( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnTimer( wxTimerEvent& event ) { event.Skip(); }
 
 
@@ -65,6 +66,7 @@ class onavsimUIDialogBase : public wxDialog
 		wxButton* m_buttonStop;
 		wxSlider* m_sliderDirection;
 		wxSlider* m_sliderSpeed;
+		wxTextCtrl* m_textCtrlTest;
 		wxTimer m_timerFrigate;
 
 		onavsimUIDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
@@ -108,6 +110,32 @@ class onavsimPreferencesDialogBase : public wxDialog
 
 		onavsimPreferencesDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Preferences"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 410,440 ), long style = wxCAPTION|wxRESIZE_BORDER );
 		~onavsimPreferencesDialogBase();
+
+};
+
+///////////////////////////////////////////////////////////////////////////////
+/// Class ControlDialogBase
+///////////////////////////////////////////////////////////////////////////////
+class ControlDialogBase : public wxDialog
+{
+	private:
+
+	protected:
+		wxStaticText* m_staticText11;
+
+		// Virtual event handlers, overide them in your derived class
+		virtual void OnTestControl( wxCommandEvent& event ) { event.Skip(); }
+
+
+	public:
+		wxSlider* m_sliderDirection;
+		wxButton* m_buttonTest;
+		wxStdDialogButtonSizer* m_sdbSizer2;
+		wxButton* m_sdbSizer2OK;
+		wxButton* m_sdbSizer2Cancel;
+
+		ControlDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxDefaultSize, long style = wxDEFAULT_DIALOG_STYLE );
+		~ControlDialogBase();
 
 };
 

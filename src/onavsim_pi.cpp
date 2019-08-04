@@ -138,6 +138,14 @@ int onavsim_pi::Init(void)
                                                  onavsim_TOOL_POSITION, 0, this);	  
 #endif
       }
+
+	  wxMenu dummy_menu;
+	  m_position_menu_id = AddCanvasContextMenuItem
+	  (new wxMenuItem(&dummy_menu, -1, _("Select onavsim Start Position")), this);
+	  SetCanvasContextMenuItemViz(m_position_menu_id, true);
+
+
+
       return (WANTS_OVERLAY_CALLBACK |
               WANTS_OPENGL_OVERLAY_CALLBACK |
               WANTS_CURSOR_LATLON       |
@@ -336,6 +344,8 @@ void onavsim_pi::OnToolbarToolCallback(int id)
 
 		m_ponavsimDialog->SetSize(m_onavsim_dialog_sx, m_onavsim_dialog_sy);
 
+		m_ponavsimDialog->plugin = this;
+
         // Create the drawing factory
         m_ponavsimOverlayFactory = new onavsimOverlayFactory( *m_ponavsimDialog );
         m_ponavsimOverlayFactory->SetParentSize( m_display_width, m_display_height);		
@@ -433,11 +443,28 @@ bool onavsim_pi::RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp)
     m_ponavsimOverlayFactory->RenderGLonavsimOverlay ( pcontext, vp );
     return true;
 }
+
+void onavsim_pi::OnContextMenuItemCallback(int id)
+{
+
+	if (!m_ponavsimDialog)
+		return;
+
+	if (id == m_position_menu_id) {
+
+		m_cursor_lat = GetCursorLat();
+		m_cursor_lon = GetCursorLon();
+
+		m_ponavsimDialog->OnContextMenu(m_cursor_lat, m_cursor_lon);
+	}
+}
+
 void onavsim_pi::SetCursorLatLon(double lat, double lon)
 {
-    if(m_ponavsimDialog)
-        m_ponavsimDialog->SetCursorLatLon(lat, lon);
+	m_cursor_lat = lat;
+	m_cursor_lon = lon;
 }
+
 
 bool onavsim_pi::LoadConfig(void)
 {
@@ -519,5 +546,12 @@ void onavsim_pi::SetColorScheme(PI_ColorScheme cs)
     DimeWindow(m_ponavsimDialog);
 }
 
+void onavsim_pi::SetText()
+{
+	if (m_ponavsimDialog)
+		
+		m_ponavsimDialog->m_textCtrlTest->SetValue("Test");
+
+}
 
 

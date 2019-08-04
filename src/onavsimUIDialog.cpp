@@ -135,25 +135,25 @@ onavsimUIDialog::~onavsimUIDialog()
 		pConf->Write( _T("VColour1"), myVColour[1] );
 		pConf->Write( _T("VColour2"), myVColour[2] );
 		pConf->Write( _T("VColour3"), myVColour[3] );
-		pConf->Write( _T("VColour4"), myVColour[4] );
-
-		
-
-		
+		pConf->Write( _T("VColour4"), myVColour[4] );	
 
     }
     
     this->Disconnect( wxEVT_MOVE, wxMoveEventHandler( onavsimUIDialog::OnMove ) );
     m_timePickerTime->Disconnect( wxEVT_DATE_CHANGED, wxDateEventHandler( onavsimUIDialog::OnDateTimeChanged ), NULL, this );
-    
-    delete m_ptcmgr;
+        
 }
 
-void onavsimUIDialog::SetCursorLatLon( double lat, double lon )
-{
-    m_cursor_lon = lon;
-    m_cursor_lat = lat;
+void onavsimUIDialog::OnContextMenu(double m_lat, double m_lon) {
+
+	frigateLat = m_lat;
+	frigateLon = m_lon;
+
+	//wxMessageBox(wxString::Format("%f", frigateLat));
+
 }
+
+
 
 void onavsimUIDialog::SetViewPort( PlugIn_ViewPort *vp )
 {
@@ -225,15 +225,28 @@ void onavsimUIDialog::Notify() {
 
 }
 
-void onavsimUIDialog::StartDriving(wxCommandEvent& event) {
-	int m_interval = 500;
-	m_timerFrigate.Start(m_interval, wxTIMER_CONTINUOUS); // start timer
+void onavsimUIDialog::OnStartDriving(wxCommandEvent& event) {
+
+	startDriving();
 }
 
-void onavsimUIDialog::StopDriving(wxCommandEvent& event) {
+void onavsimUIDialog::OnStopDriving(wxCommandEvent& event) {
 
 	if (m_timerFrigate.IsRunning()) m_timerFrigate.Stop();
 
+}
+
+void onavsimUIDialog::startDriving() {
+
+	//wxMessageBox("here");
+
+	//wxMessageBox(wxString::Format("%f", frigateLat));
+
+	double scale_factor = GetOCPNGUIToolScaleFactor_PlugIn();
+	JumpToPosition(frigateLat, frigateLon, scale_factor);
+
+	int m_interval = 500;
+	m_timerFrigate.Start(m_interval, wxTIMER_CONTINUOUS); // start timer
 }
 
 
@@ -250,8 +263,37 @@ wxString onavsimUIDialog::MakeDateTimeLabel(wxDateTime myDateTime)
 
 void onavsimUIDialog::About(wxCommandEvent& event)
 {
+	m_pControlDialog = new ControlDialog(this);
+
+
+	m_pControlDialog->Plugin_Dialog = this;
+	m_pControlDialog->Show();
+	m_pControlDialog->Fit();
+	/*
+	plugin->myControlDialog = new ControlDialogBase(this,wxID_ANY, _("Test Control"), { 100, 100 }, wxDefaultSize, 0);
+	if (plugin->myControlDialog->ShowModal() == wxID_OK)
+	{
+		wxMessageBox("here");
+	}
+	*/
+	event.Skip();
+}
+
+void onavsimUIDialog::startTest()
+{
 	
-       wxMessageBox(
-_("Tidal Current\n------------------------------------------------------\n\n\n\n\n\nUse this data with caution.\nUse in conjunction with Tidal Current Atlases and Tidal Diamonds\n\n------------------------------------------------------\n\nNote: 1 Rates shown are for a position corresponding to the centre\nof the base of the arrow. Tidal rate is shown as knots.\n\n")
-     , _("About Tidal Arrows"), wxOK | wxICON_INFORMATION, this);
+
+}
+
+ControlDialog::ControlDialog(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : ControlDialogBase(parent, id, title, pos, size, style)
+{
+
+}
+
+void ControlDialog::OnTestControl(wxCommandEvent& event) {
+
+	//wxMessageBox("here at test");
+	Plugin_Dialog->startDriving();
+	Plugin_Dialog->m_sliderSpeed->SetValue(50);
+
 }

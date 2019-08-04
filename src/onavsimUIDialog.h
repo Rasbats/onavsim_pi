@@ -83,6 +83,7 @@ class PositionRecordSet;
 class wxFileConfig;
 class onavsim_pi;
 class wxGraphicsContext;
+class onavsimUIDialog;
 
 class Position
 {
@@ -112,22 +113,32 @@ public:
 };
 
 
+class ControlDialog: public ControlDialogBase
+{
+public:
+	ControlDialog(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Add Tidal Data"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(-1, -1), long style = wxCAPTION | wxDEFAULT_DIALOG_STYLE | wxMAXIMIZE_BOX | wxRESIZE_BORDER);
+	
+	onavsimUIDialog *Plugin_Dialog;
+	void OnTestControl(wxCommandEvent& event);
+
+	
+private:
+
+
+};
+
 class onavsimUIDialog: public onavsimUIDialogBase {
 public:
 
-    onavsimUIDialog(wxWindow* parent, onavsim_pi *ppi, wxWindowID id = wxID_ANY, const wxString& title = _("Currents"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 400,300 ), long style = onavsim_DIALOG_STYLE);
+    onavsimUIDialog(wxWindow* parent, onavsim_pi *ppi, wxWindowID id = wxID_ANY, const wxString& title = _("oNavSim"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 400,300 ), long style = onavsim_DIALOG_STYLE);
     ~onavsimUIDialog();
-
-    void OpenFile( bool newestFile = false );
     
-    void SetCursorLatLon( double lat, double lon );
-    void SetFactoryOptions( bool set_val = false );
-
+    
+	void OnContextMenu(double m_lat, double m_lon);
     void SetViewPort( PlugIn_ViewPort *vp );
 	PlugIn_ViewPort *vp;
 
-	int round(double c);
-
+	
 	bool m_bUseRate;    
 	bool m_bUseDirection; 
 	bool m_bUseHighRes;
@@ -149,9 +160,7 @@ public:
 	time_t myCurrentTime; 
 
 	
-	wxString MakeDateTimeLabel(wxDateTime myDateTime);
-
-    void LoadTCMFile();
+	wxString MakeDateTimeLabel(wxDateTime myDateTime);    
 
 	//naval simulation
 	double frigateLat;
@@ -162,19 +171,23 @@ public:
 	void OnTimer(wxTimerEvent& event);
 	void Notify();
 
-	void StartDriving(wxCommandEvent& event);
-	void StopDriving(wxCommandEvent& event);
+	void OnStartDriving(wxCommandEvent& event);
+	void OnStopDriving(wxCommandEvent& event);
+	void startDriving();
+	void startTest();
+
+	
+	onavsim_pi *plugin;
+	void About(wxCommandEvent& event);
+
+	ControlDialog *m_pControlDialog;
 
 private:
 
     void OnClose( wxCloseEvent& event );
     void OnMove( wxMoveEvent& event );
-    void OnSize( wxSizeEvent& event );
+    void OnSize( wxSizeEvent& event );	
 	
-	void OnPrev( wxCommandEvent& event );
-    void OnNext( wxCommandEvent& event );
-    void SetInterval( wxCommandEvent& event );
-	void About(wxCommandEvent& event);
 
 
     //    Data

@@ -87,6 +87,9 @@ onavsimUIDialogBase::onavsimUIDialogBase( wxWindow* parent, wxWindowID id, const
 	m_sliderSpeed = new wxSlider( this, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
 	bSizerDirection->Add( m_sliderSpeed, 0, wxALL, 5 );
 
+	m_textCtrlTest = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	bSizerDirection->Add( m_textCtrlTest, 0, wxALL, 5 );
+
 
 	bSizerMain->Add( bSizerDirection, 1, wxEXPAND, 5 );
 
@@ -103,8 +106,8 @@ onavsimUIDialogBase::onavsimUIDialogBase( wxWindow* parent, wxWindowID id, const
 	this->Connect( wxEVT_SIZE, wxSizeEventHandler( onavsimUIDialogBase::OnSize ) );
 	m_datePickerDate->Connect( wxEVT_DATE_CHANGED, wxDateEventHandler( onavsimUIDialogBase::OnDateTimeChanged ), NULL, this );
 	m_button1->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::About ), NULL, this );
-	m_buttonStart->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::StartDriving ), NULL, this );
-	m_buttonStop->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::StopDriving ), NULL, this );
+	m_buttonStart->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnStartDriving ), NULL, this );
+	m_buttonStop->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnStopDriving ), NULL, this );
 	this->Connect( wxID_ANY, wxEVT_TIMER, wxTimerEventHandler( onavsimUIDialogBase::OnTimer ) );
 }
 
@@ -115,8 +118,8 @@ onavsimUIDialogBase::~onavsimUIDialogBase()
 	this->Disconnect( wxEVT_SIZE, wxSizeEventHandler( onavsimUIDialogBase::OnSize ) );
 	m_datePickerDate->Disconnect( wxEVT_DATE_CHANGED, wxDateEventHandler( onavsimUIDialogBase::OnDateTimeChanged ), NULL, this );
 	m_button1->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::About ), NULL, this );
-	m_buttonStart->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::StartDriving ), NULL, this );
-	m_buttonStop->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::StopDriving ), NULL, this );
+	m_buttonStart->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnStartDriving ), NULL, this );
+	m_buttonStop->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnStopDriving ), NULL, this );
 	this->Disconnect( wxID_ANY, wxEVT_TIMER, wxTimerEventHandler( onavsimUIDialogBase::OnTimer ) );
 
 }
@@ -250,5 +253,49 @@ onavsimPreferencesDialogBase::~onavsimPreferencesDialogBase()
 {
 	// Disconnect Events
 	m_cScale->Disconnect( wxEVT_COMMAND_CHOICE_SELECTED, wxCommandEventHandler( onavsimPreferencesDialogBase::OnChoice ), NULL, this );
+
+}
+
+ControlDialogBase::ControlDialogBase( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+{
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+
+	wxBoxSizer* bSizer7;
+	bSizer7 = new wxBoxSizer( wxVERTICAL );
+
+	m_staticText11 = new wxStaticText( this, wxID_ANY, _("Direction"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText11->Wrap( -1 );
+	bSizer7->Add( m_staticText11, 0, wxALL, 5 );
+
+	m_sliderDirection = new wxSlider( this, wxID_ANY, 50, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
+	bSizer7->Add( m_sliderDirection, 0, wxALL, 5 );
+
+	m_buttonTest = new wxButton( this, wxID_ANY, _("TestControl"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer7->Add( m_buttonTest, 0, wxALL, 5 );
+
+	m_sdbSizer2 = new wxStdDialogButtonSizer();
+	m_sdbSizer2OK = new wxButton( this, wxID_OK );
+	m_sdbSizer2->AddButton( m_sdbSizer2OK );
+	m_sdbSizer2Cancel = new wxButton( this, wxID_CANCEL );
+	m_sdbSizer2->AddButton( m_sdbSizer2Cancel );
+	m_sdbSizer2->Realize();
+
+	bSizer7->Add( m_sdbSizer2, 1, wxEXPAND, 5 );
+
+
+	this->SetSizer( bSizer7 );
+	this->Layout();
+	bSizer7->Fit( this );
+
+	this->Centre( wxBOTH );
+
+	// Connect Events
+	m_buttonTest->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ControlDialogBase::OnTestControl ), NULL, this );
+}
+
+ControlDialogBase::~ControlDialogBase()
+{
+	// Disconnect Events
+	m_buttonTest->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( ControlDialogBase::OnTestControl ), NULL, this );
 
 }

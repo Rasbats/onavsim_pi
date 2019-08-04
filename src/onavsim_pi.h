@@ -35,7 +35,7 @@
 #endif //precompiled headers
 
 #define     PLUGIN_VERSION_MAJOR    0
-#define     PLUGIN_VERSION_MINOR    1
+#define     PLUGIN_VERSION_MINOR    2
 
 #define     MY_API_VERSION_MAJOR    1
 #define     MY_API_VERSION_MINOR    15
@@ -46,6 +46,7 @@
 
 extern wxString myVColour[5]; 
 
+class ControlDialog;
 
 
 //----------------------------------------------------------------------------------------------------------
@@ -76,8 +77,12 @@ public:
 //    The override PlugIn Methods
       bool RenderOverlay(wxDC &dc, PlugIn_ViewPort *vp);
 	  bool RenderGLOverlay(wxGLContext *pcontext, PlugIn_ViewPort *vp);
-      void SetCursorLatLon(double lat, double lon);
-      void SendTimelineMessage(wxDateTime time);
+	  void OnContextMenuItemCallback(int id);
+	  void SetCursorLatLon(double lat, double lon);
+      
+	  double GetCursorLat(void) { return m_cursor_lat; }
+	  double GetCursorLon(void) { return m_cursor_lon; }
+
       void SetDefaults(void);
       int  GetToolbarToolCount(void);
       void ShowPreferencesDialog( wxWindow* parent );
@@ -89,6 +94,7 @@ public:
       void SetonavsimDialogSizeX(int x){ m_onavsim_dialog_sx = x;}
       void SetonavsimDialogSizeY(int x){ m_onavsim_dialog_sy = x;}
       void SetColorScheme(PI_ColorScheme cs);
+	  void SetText();
 
       void OnonavsimDialogClose();
 
@@ -103,6 +109,7 @@ public:
   
       onavsimOverlayFactory *GetonavsimOverlayFactory(){ return m_ponavsimOverlayFactory; }
 
+	  ControlDialogBase * myControlDialog;
 
 private:
       bool LoadConfig(void);
@@ -116,9 +123,13 @@ private:
 
       int              m_display_width, m_display_height;
       int              m_leftclick_tool_id;
+	  int				m_position_menu_id;
 
       int              m_onavsim_dialog_x, m_onavsim_dialog_y;
       int              m_onavsim_dialog_sx, m_onavsim_dialog_sy;
+
+	  double m_cursor_lat;
+	  double m_cursor_lon;
 
       // preference data
       bool              m_bonavsimUseHiDef;

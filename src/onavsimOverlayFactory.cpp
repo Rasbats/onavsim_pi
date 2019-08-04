@@ -415,6 +415,9 @@ void onavsimOverlayFactory::DrawGLLine( double x1, double y1, double x2, double 
 void onavsimOverlayFactory::DrawOLBitmap( const wxBitmap &bitmap, wxCoord x, wxCoord y, bool usemask )
 {
     wxBitmap bmp;
+	int ww = 0;
+	int hh = 0;
+
     if( x < 0 || y < 0 ) {
         int dx = ( x < 0 ? -x : 0 );
         int dy = ( y < 0 ? -y : 0 );
@@ -428,9 +431,11 @@ void onavsimOverlayFactory::DrawOLBitmap( const wxBitmap &bitmap, wxCoord x, wxC
         bmp = newBitmap;
     } else {
         bmp = bitmap;
+		ww = bitmap.GetWidth();
+		hh = bitmap.GetHeight();
     }
     if( m_pdc )
-        m_pdc->DrawBitmap( bmp, x, y, usemask );
+        m_pdc->DrawBitmap( bmp, x-ww/2, y-hh/2, usemask ); //draws with centre of bitmap at x,y
     else {
         wxImage image = bmp.ConvertToImage();
         int w = image.GetWidth(), h = image.GetHeight();
@@ -463,18 +468,19 @@ void onavsimOverlayFactory::DrawOLBitmap( const wxBitmap &bitmap, wxCoord x, wxC
             }
 
             glColor4f( 1, 1, 1, 1 );
-
-            glEnable( GL_BLEND );
+            glEnable( GL_BLEND );			
             glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-            glRasterPos2i( x, y );
-            glPixelZoom( 1, -1 );
+
+
+            glRasterPos2i( x-w/2, y-h/2 );	//draws with centre of bitmap at x, y
+            glPixelZoom( 1, -1 );			
             glDrawPixels( w, h, GL_RGBA, GL_UNSIGNED_BYTE, e );
             glPixelZoom( 1, 1 );
             glDisable( GL_BLEND );
 
             delete[] ( e );
         } else {
-            glRasterPos2i( x, y );
+            glRasterPos2i( x-w/2, y-h/2 ); //draws with centre of bitmap at x,y
             glPixelZoom( 1, -1 ); /* draw data from top to bottom */
             glDrawPixels( w, h, GL_RGB, GL_UNSIGNED_BYTE, image.GetData() );
             glPixelZoom( 1, 1 );
@@ -744,10 +750,10 @@ void onavsimOverlayFactory::drawGLPolygons(onavsimOverlayFactory *pof, wxDC *dc,
 void onavsimOverlayFactory::DrawAllCurrentsInViewPort(PlugIn_ViewPort *BBox, bool bRebuildSelList,
         bool bforce_redraw_currents, bool bdraw_mono_for_mask, wxDateTime myTime)
 {
-
-	//if (BBox->chart_scale > 1000000){
-	//	return;
-	//}
+	outsideChartScale = false;
+	if (BBox->chart_scale > 300000){
+		outsideChartScale = true;
+	}
     wxColour text_color;
 
     GetGlobalColor( _T ("UINFD" ), &text_color );
@@ -804,7 +810,7 @@ void onavsimOverlayFactory::DrawAllCurrentsInViewPort(PlugIn_ViewPort *BBox, boo
 				
 				wxBoundingBox LLBBox( BBox->lon_min, BBox->lat_min , BBox->lon_max, BBox->lat_max );
 							
-				if( !b_dup)  {
+				if( !b_dup)  {					
 
                     wxPoint r;
 					GetCanvasPixLL( BBox, &r,lat, lon );
@@ -833,6 +839,7 @@ void onavsimOverlayFactory::DrawAllCurrentsInViewPort(PlugIn_ViewPort *BBox, boo
 						tcvalue = 6;
 
                         GetCanvasPixLL(BBox,&cpoint, lat, lon);
+						
                         pixxc = cpoint.x;
                         pixyc = cpoint.y;  
                           
@@ -844,11 +851,16 @@ void onavsimOverlayFactory::DrawAllCurrentsInViewPort(PlugIn_ViewPort *BBox, boo
                         double a2 = log10( a1 );
                         double scale = current_draw_scaler * a2;
 
-						bool rendered = drawCurrentArrow( pixxc, pixyc, dir -90 + rot_vp , scale/100, tcvalue );
+						bool rendered;// = drawCurrentArrow(pixxc, pixyc, dir - 90 + rot_vp, scale / 100, tcvalue);
                                
 						int shift = 0;
+						wxPoint ab;
+						GetCanvasPixLL(BBox, &ab, lat, lon);
 
 						if ( !m_pdc ) {
+							
+							DrawNavUnitInViewPort(270 - dir, ab.x, ab.y);
+
                            if (rendered && m_bShowFillColour) 
 							  drawGLPolygons(this, m_pdc, BBox, DrawGLPolygon(), lat, lon, shift);
 
@@ -871,22 +883,25 @@ void onavsimOverlayFactory::DrawAllCurrentsInViewPort(PlugIn_ViewPort *BBox, boo
 						   }
 					    }
 						else {
-						  char sbuf[20];
-                          if( m_bShowRate ) {
-							snprintf( sbuf, 19, "%3.1f", fabs(tcvalue) );
-							m_pdc->DrawText( wxString( sbuf, wxConvUTF8 ), pixxc, pixyc );
-							if (!m_bHighResolution){
-								shift = 13;
-							}
-							else {
-								shift = 26;
-							}
-						  }
+
+							DrawNavUnitInViewPort(270 - dir, ab.x, ab.y);
+
+							char sbuf[20];
+							if( m_bShowRate ) {
+								snprintf( sbuf, 19, "%3.1f", fabs(tcvalue) );
+								m_pdc->DrawText( wxString( sbuf, wxConvUTF8 ), pixxc, pixyc );
+								if (!m_bHighResolution){
+									shift = 13;
+								}
+								else {
+									shift = 26;
+								}
+						    }
 					
-						  if ( m_bShowDirection ) {	
-							snprintf( sbuf, 19, "%03.0f", dir );
-							m_pdc->DrawText( wxString( sbuf, wxConvUTF8 ), pixxc, pixyc + shift );
-                          }
+							if ( m_bShowDirection ) {	
+								snprintf( sbuf, 19, "%03.0f", dir );
+								m_pdc->DrawText( wxString( sbuf, wxConvUTF8 ), pixxc, pixyc + shift );
+							}
                         //}
                     //}
                   }
@@ -899,3 +914,43 @@ void onavsimOverlayFactory::DrawAllCurrentsInViewPort(PlugIn_ViewPort *BBox, boo
             //}
         //}
 }        
+
+void onavsimOverlayFactory::DrawNavUnitInViewPort(double rot, int x, int y) {
+
+	wxFileName fn;
+	wxString _png_frigate;
+
+	fn.SetPath(*GetpSharedDataLocation());
+	fn.AppendDir(_T("plugins"));
+	fn.AppendDir(_T("onavsim_pi"));
+	fn.AppendDir(_T("data"));
+	fn.SetFullName(_T("frigate.png"));
+	_png_frigate = fn.GetFullPath();
+
+	wxImage image(_png_frigate, wxBITMAP_TYPE_PNG);
+
+	
+
+
+	float icon_rad = ((rot + 90.) * PI / 180.);
+	float icon_rot = rot * PI / 180.;
+
+	int w = image.GetWidth();
+	int h = image.GetHeight();
+
+	if (outsideChartScale) {
+		image.Scale(w / 2, h / 2, wxIMAGE_QUALITY_NORMAL);
+		w = image.GetWidth();  // new width and height
+		h = image.GetHeight();
+	}
+
+
+	wxPoint ctr(w/2, h/2);
+
+	wxImage rotImage = image.Rotate(icon_rad, ctr, true, 0 );
+	wxBitmap navBitmap(rotImage);
+
+	// Draw the bitmap (function allows both GL and DC) 
+	DrawOLBitmap(navBitmap, x, y, true);
+
+}
