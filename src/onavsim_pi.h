@@ -35,7 +35,7 @@
 #endif //precompiled headers
 
 #define     PLUGIN_VERSION_MAJOR    0
-#define     PLUGIN_VERSION_MINOR    2
+#define     PLUGIN_VERSION_MINOR    3
 
 #define     MY_API_VERSION_MAJOR    1
 #define     MY_API_VERSION_MINOR    15
@@ -110,6 +110,7 @@ public:
       onavsimOverlayFactory *GetonavsimOverlayFactory(){ return m_ponavsimOverlayFactory; }
 
 	  ControlDialogBase * myControlDialog;
+      onavsimUIDialog     *m_ponavsimDialog;
 
 private:
       bool LoadConfig(void);
@@ -118,7 +119,7 @@ private:
       wxFileConfig     *m_pconfig;
       wxWindow         *m_parent_window;
 
-      onavsimUIDialog     *m_ponavsimDialog;
+     
       onavsimOverlayFactory *m_ponavsimOverlayFactory;
 
       int              m_display_width, m_display_height;

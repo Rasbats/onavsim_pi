@@ -71,7 +71,7 @@ static wxString TToString( const wxDateTime date_time, const int time_zone )
 }
 
 onavsimUIDialog::onavsimUIDialog(wxWindow *parent, onavsim_pi *ppi, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style)
-: onavsimUIDialogBase(parent, id, title, pos, size, style), m_ptcmgr(0), m_vp(0)
+: onavsimUIDialogBase(parent, id, title, pos, size, style), m_vp(0)
 {
     pParent = parent;
     pPlugIn = ppi;
@@ -113,6 +113,8 @@ onavsimUIDialog::onavsimUIDialog(wxWindow *parent, onavsim_pi *ppi, wxWindowID i
 	frigateLat = 50.0;
 	frigateLon = -4.0;
 	frigateSpd = 0;
+
+	myNavObjects.clear();
 
 	DimeWindow( this );
 	
@@ -196,32 +198,35 @@ void onavsimUIDialog::OnTimer(wxTimerEvent& event) {
 
 
 void onavsimUIDialog::Notify() {
-
+	
+	int s = m_choiceNavObject->GetSelection();
+	wxString c = m_choiceNavObject->GetString(s);
 	
 
-	frigateSpd /= 7200;
+	for (std::vector<NavObject>::iterator it = myNavObjects.begin(); it != myNavObjects.end(); it++) {
 
-	int dir = m_sliderDirection->GetValue();
-	double ddir;
-	ddir = (double)dir;
+		if (it->name == c) {						     		
 
-	int spd = m_sliderSpeed->GetValue();
-	double dspd;
-	dspd = (double)spd;
-	frigateSpd = dspd;
-	frigateSpd /= 7200;  // m_interval = 500
+			int dir = m_sliderDirection->GetValue();
+			double ddir;
+			ddir = (double)dir;
 
-	double newFrigateLat;
-	double newFrigateLon;
+			int spd = m_sliderSpeed->GetValue();
+			double dspd;
+			dspd = (double)spd;
+			
+			dspd /= 7200;  // m_interval = 500
 
-	PositionBearingDistanceMercator_Plugin(frigateLat, frigateLon, ddir, frigateSpd, &newFrigateLat, &newFrigateLon);
+			it->spd = dspd;
+			it->dir = ddir;
 
-	frigateLat = newFrigateLat;
-	frigateLon = newFrigateLon;
-	frigateDir = ddir;
+			//PositionBearingDistanceMercator_Plugin(frigateLat, frigateLon, ddir, frigateSpd, &newFrigateLat, &newFrigateLon);
+			
+		}
+
+	}
 
 	RequestRefresh(pParent);
-
 
 }
 
@@ -237,11 +242,12 @@ void onavsimUIDialog::OnStopDriving(wxCommandEvent& event) {
 }
 
 void onavsimUIDialog::startDriving() {
-
-	//wxMessageBox("here");
-
-	//wxMessageBox(wxString::Format("%f", frigateLat));
-
+	
+	if (myNavObjects.size() == 0) {
+		wxMessageBox("Please create a unit to drive");
+		return;
+	}
+	
 	double scale_factor = GetOCPNGUIToolScaleFactor_PlugIn();
 	JumpToPosition(frigateLat, frigateLon, scale_factor);
 
@@ -263,12 +269,13 @@ wxString onavsimUIDialog::MakeDateTimeLabel(wxDateTime myDateTime)
 
 void onavsimUIDialog::About(wxCommandEvent& event)
 {
-	m_pControlDialog = new ControlDialog(this);
+	
+	wxMessageBox("Not yet implemented");
+	
 
-
-	m_pControlDialog->Plugin_Dialog = this;
-	m_pControlDialog->Show();
-	m_pControlDialog->Fit();
+	//m_pControlDialog->Plugin_Dialog = this;
+	//m_pControlDialog->Show();
+	//m_pControlDialog->Fit();
 	/*
 	plugin->myControlDialog = new ControlDialogBase(this,wxID_ANY, _("Test Control"), { 100, 100 }, wxDefaultSize, 0);
 	if (plugin->myControlDialog->ShowModal() == wxID_OK)
@@ -279,9 +286,31 @@ void onavsimUIDialog::About(wxCommandEvent& event)
 	event.Skip();
 }
 
-void onavsimUIDialog::startTest()
+void onavsimUIDialog::startTest(wxString myTimer)
 {
+	// placeholder for another test
 	
+
+}
+
+
+
+void onavsimUIDialog::OnCreateNavObject(wxCommandEvent& event) {
+
+	int s = m_choiceNavObject->GetSelection();
+	wxString c = m_choiceNavObject->GetString(s);
+
+	NavObject newNavObj;
+	newNavObj.name = c;
+	newNavObj.id = s;
+	newNavObj.lat = frigateLat;
+	newNavObj.lon = frigateLon;
+	newNavObj.spd = 0.;
+	newNavObj.dir = 0.;
+
+	myNavObjects.push_back(newNavObj);
+
+	RequestRefresh(pParent);
 
 }
 

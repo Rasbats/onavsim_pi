@@ -103,7 +103,7 @@ public:
 	void DrawAllCurrentsInViewPort(PlugIn_ViewPort *BBox, bool bRebuildSelList,
         bool bforce_redraw_currents, bool bdraw_mono_for_mask, wxDateTime myTime);
 
-	void DrawNavUnitInViewPort(double rot, int x, int y);
+	void DrawNavUnitInViewPort(wxString navName, double rot, int x, int y);
 
 	wxPoint ScaleCurrentArrow(int index, wxPoint myPoint, int scale);
 

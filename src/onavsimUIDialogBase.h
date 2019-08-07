@@ -25,13 +25,13 @@
 #include <wx/image.h>
 #include <wx/icon.h>
 #include <wx/button.h>
+#include <wx/choice.h>
 #include <wx/slider.h>
 #include <wx/textctrl.h>
 #include <wx/timer.h>
 #include <wx/dialog.h>
 #include <wx/checkbox.h>
 #include <wx/clrpicker.h>
-#include <wx/choice.h>
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +42,6 @@
 class onavsimUIDialogBase : public wxDialog
 {
 	private:
-		wxButton* m_button1;
 
 	protected:
 		wxStaticText* m_staticTextDatetime;
@@ -55,6 +54,7 @@ class onavsimUIDialogBase : public wxDialog
 		virtual void OnSize( wxSizeEvent& event ) { event.Skip(); }
 		virtual void OnDateTimeChanged( wxDateEvent& event ) { event.Skip(); }
 		virtual void About( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnCreateNavObject( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnStartDriving( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnStopDriving( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnTimer( wxTimerEvent& event ) { event.Skip(); }
@@ -62,6 +62,9 @@ class onavsimUIDialogBase : public wxDialog
 
 	public:
 		wxTimePickerCtrl* m_timePickerTime;
+		wxButton* m_buttonHelp;
+		wxButton* m_buttonCreate;
+		wxChoice* m_choiceNavObject;
 		wxButton* m_buttonStart;
 		wxButton* m_buttonStop;
 		wxSlider* m_sliderDirection;
@@ -122,6 +125,8 @@ class ControlDialogBase : public wxDialog
 
 	protected:
 		wxStaticText* m_staticText11;
+		wxStaticText* m_staticText12;
+		wxSlider* m_sliderSpeed;
 
 		// Virtual event handlers, overide them in your derived class
 		virtual void OnTestControl( wxCommandEvent& event ) { event.Skip(); }

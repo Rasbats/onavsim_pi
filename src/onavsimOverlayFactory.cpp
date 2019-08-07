@@ -51,6 +51,7 @@ class Position;
 class onavsimUIDialog;
 class PlugIn_ViewPort;
 class wxBoundingBox;
+class NavObject;
 
 #define NUM_CURRENT_ARROW_POINTS 9
 static wxPoint CurrentArrowArray[NUM_CURRENT_ARROW_POINTS] = { wxPoint( 0, 0 ), wxPoint( 0, -10),
@@ -740,10 +741,7 @@ void onavsimOverlayFactory::drawGLPolygons(onavsimOverlayFactory *pof, wxDC *dc,
             glDisable( GL_BLEND );
 
             delete[] ( e );
-
       }
-
-
 }
 
 
@@ -778,159 +776,120 @@ void onavsimOverlayFactory::DrawAllCurrentsInViewPort(PlugIn_ViewPort *BBox, boo
 
 	// End setting up scaler
 
-    float tcvalue, dir;
-    bool bnew_val = true;
-    double lon_last = 0.;
+    double speedText, dir;
     
-    double lat_last = 0.;
-    TCMgr *ctcmgr = m_dlg.m_ptcmgr;
 
+	pTCFont = wxTheFontList->FindOrCreateFont(12, wxDEFAULT, wxNORMAL, wxBOLD, FALSE, wxString(_T("Eurostile Extended")));
+	if (m_pdc) {
+		m_pdc->SetFont(*pTCFont);
+	}
+     
+	// Iterate over all the navobjects in the collection
 
-	wxDateTime yn = m_dlg.m_dtNow; 
+	for (std::vector<NavObject>::iterator it = m_dlg.myNavObjects.begin(); it != m_dlg.myNavObjects.end(); it++) {
 
-        pTCFont = wxTheFontList->FindOrCreateFont( 12, wxDEFAULT, wxNORMAL, wxBOLD, FALSE, wxString( _T ( "Eurostile Extended" ) ) );
-        if (m_pdc ) {
-            m_pdc->SetFont( *pTCFont );
-        }
+		wxString navName = it->name;
+		
+		speedText = it->spd;
+		speedText *= 7200;
+		m_dlg.m_textCtrlTest->SetValue(wxString::Format("%3.1f", speedText));
+		
+		double newLat, newLon;
 
-        //for( int i = 1; i <  ctcmgr->Get_max_IDX() + 1; i++ ) {
-            //IDX_entry *pIDX = ctcmgr->GetIDX_entry( i );
-			double lon = m_dlg.frigateLat;
-            double lat = m_dlg.frigateLon;
+		PositionBearingDistanceMercator_Plugin(it->lat, it->lon, it->dir, it->spd, &newLat, &newLon);
+		
+		double lat = newLat;
+		double lon = newLon;
 
-            //char type = pIDX->IDX_type;             // Entry "TCtcIUu" identifier
-            
-			//if( ( ( type == 'c' ) || ( type == 'C' ) ) && ( 1/*pIDX->IDX_Useable*/) ) {
+		it->lat = newLat;
+		it->lon = newLon;
 
-//  TODO This is a ---HACK---
-//  try to avoid double current arrows.  Select the first in the list only
-//  Proper fix is to correct the TCDATA index file for depth indication
-                bool b_dup = false;
-                //if( ( type == 'c' ) && ( lat == lat_last ) && ( lon == lon_last ) ) b_dup = true;
-				
-				wxBoundingBox LLBBox( BBox->lon_min, BBox->lat_min , BBox->lon_max, BBox->lat_max );
-							
-				if( !b_dup)  {					
+		dir = it->dir;
+		
+		
 
-                    wxPoint r;
-					GetCanvasPixLL( BBox, &r,lat, lon );
+		int pixxc, pixyc;
+		wxPoint cpoint;
 
-                    wxPoint d[4];
-                    int dd = 2;
-                    d[0].x = r.x;
-                    d[0].y = r.y + dd;
-                    d[1].x = r.x + dd;
-                    d[1].y = r.y;
-                    d[2].x = r.x;
-                    d[2].y = r.y - dd;
-                    d[3].x = r.x - dd;
-                    d[3].y = r.y;
-					 
-					//if( ctcmgr->GetTideOrCurrent15( yn, i, tcvalue, dir, bnew_val) ) {
+		GetCanvasPixLL(BBox, &cpoint, lat, lon);
 
-					  //if( type == 'c' ) {
-                        									
-						int pixxc, pixyc;
-						wxPoint cpoint;
+		pixxc = cpoint.x;
+		pixyc = cpoint.y;
 
-						lat  = m_dlg.frigateLat; // 
-						lon = m_dlg.frigateLon; // 
-						dir = m_dlg.frigateDir;
-						tcvalue = 6;
+		int shift = 0;
+		wxPoint ab;
+		GetCanvasPixLL(BBox, &ab, lat, lon);
 
-                        GetCanvasPixLL(BBox,&cpoint, lat, lon);
+		if (!m_pdc) {
+
+			DrawNavUnitInViewPort(navName, 270 - dir, ab.x, ab.y);
+
+			if (m_bShowRate) {
+
+				DrawGLLabels(this, m_pdc, BBox,
+					DrawGLText(speedText, 1), lat, lon, 0);
+
+				if (!m_bHighResolution) {
+					shift = 13;
+				}
+				else {
+					shift = 26;
+				}
+			}
+			if (m_bShowDirection) {
+
+				DrawGLLabels(this, m_pdc, BBox,
+					DrawGLTextDir(dir, 0), lat, lon, shift);
+			}
+		}
+		else {
+
+			DrawNavUnitInViewPort(navName, 270 - dir, ab.x, ab.y);
+
+			char sbuf[20];
+			if (m_bShowRate) {
+				snprintf(sbuf, 19, "%3.1f", speedText);
+				m_pdc->DrawText(wxString(sbuf, wxConvUTF8), pixxc, pixyc);
+				if (!m_bHighResolution) {
+					shift = 13;
+				}
+				else {
+					shift = 26;
+				}
+			}
+
+			if (m_bShowDirection) {
+				snprintf(sbuf, 19, "%03.0f", dir);
+				m_pdc->DrawText(wxString(sbuf, wxConvUTF8), pixxc, pixyc + shift);
+			}
+
+		}
+
+	}
+
+	
 						
-                        pixxc = cpoint.x;
-                        pixyc = cpoint.y;  
-                          
-
-						//    Adjust drawing size using logarithmic scale
-                        double a1 = fabs( tcvalue ) * 10;
-                        a1 = wxMax(1.0, a1);      // Current values less than 0.1 knot
-												// will be displayed as 0
-                        double a2 = log10( a1 );
-                        double scale = current_draw_scaler * a2;
-
-						bool rendered;// = drawCurrentArrow(pixxc, pixyc, dir - 90 + rot_vp, scale / 100, tcvalue);
-                               
-						int shift = 0;
-						wxPoint ab;
-						GetCanvasPixLL(BBox, &ab, lat, lon);
-
-						if ( !m_pdc ) {
-							
-							DrawNavUnitInViewPort(270 - dir, ab.x, ab.y);
-
-                           if (rendered && m_bShowFillColour) 
-							  drawGLPolygons(this, m_pdc, BBox, DrawGLPolygon(), lat, lon, shift);
-
-						   if(m_bShowRate){
-                          
-							  DrawGLLabels( this, m_pdc, BBox, 
-									  DrawGLText( fabs(tcvalue), 1), lat, lon, 0 ) ;
-
-							  if (!m_bHighResolution){
-								  shift = 13;
-							  }
-							  else {
-								  shift = 26;
-							  }
-						   }
-						   if( m_bShowDirection){
-						  
-							  DrawGLLabels( this, m_pdc, BBox, 
-											DrawGLTextDir(dir, 0), lat, lon, shift) ;
-						   }
-					    }
-						else {
-
-							DrawNavUnitInViewPort(270 - dir, ab.x, ab.y);
-
-							char sbuf[20];
-							if( m_bShowRate ) {
-								snprintf( sbuf, 19, "%3.1f", fabs(tcvalue) );
-								m_pdc->DrawText( wxString( sbuf, wxConvUTF8 ), pixxc, pixyc );
-								if (!m_bHighResolution){
-									shift = 13;
-								}
-								else {
-									shift = 26;
-								}
-						    }
-					
-							if ( m_bShowDirection ) {	
-								snprintf( sbuf, 19, "%03.0f", dir );
-								m_pdc->DrawText( wxString( sbuf, wxConvUTF8 ), pixxc, pixyc + shift );
-							}
-                        //}
-                    //}
-                  }
-
-                }
-
-                lon_last = lon;
-                lat_last = lat;
-
-            //}
-        //}
 }        
 
-void onavsimOverlayFactory::DrawNavUnitInViewPort(double rot, int x, int y) {
+void onavsimOverlayFactory::DrawNavUnitInViewPort(wxString navName, double rot, int x, int y) {
 
 	wxFileName fn;
-	wxString _png_frigate;
+	wxString png_nav;
 
 	fn.SetPath(*GetpSharedDataLocation());
 	fn.AppendDir(_T("plugins"));
 	fn.AppendDir(_T("onavsim_pi"));
 	fn.AppendDir(_T("data"));
-	fn.SetFullName(_T("frigate.png"));
-	_png_frigate = fn.GetFullPath();
 
-	wxImage image(_png_frigate, wxBITMAP_TYPE_PNG);
+	wxString pngName = navName	+ ".png" ;
+	fn.SetFullName(pngName);
+	png_nav = fn.GetFullPath();
+
+	//wxMessageBox(png_nav);
+	//return;
 
 	
-
+	wxImage image(png_nav, wxBITMAP_TYPE_PNG);
 
 	float icon_rad = ((rot + 90.) * PI / 180.);
 	float icon_rot = rot * PI / 180.;

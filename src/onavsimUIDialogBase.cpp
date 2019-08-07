@@ -39,19 +39,33 @@ onavsimUIDialogBase::onavsimUIDialogBase( wxWindow* parent, wxWindowID id, const
 	wxStaticBoxSizer* sbSizerControls;
 	sbSizerControls = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, _("Help") ), wxHORIZONTAL );
 
+	m_buttonHelp = new wxButton( sbSizerControls->GetStaticBox(), wxID_ANY, _("Help"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_buttonHelp->SetBackgroundColour( wxColour( 255, 255, 0 ) );
 
-	sbSizerControls->Add( 5, 0, 1, wxEXPAND, 5 );
-
-	m_button1 = new wxButton( sbSizerControls->GetStaticBox(), wxID_ANY, _("Help"), wxDefaultPosition, wxDefaultSize, 0 );
-	m_button1->SetBackgroundColour( wxColour( 255, 255, 0 ) );
-
-	sbSizerControls->Add( m_button1, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+	sbSizerControls->Add( m_buttonHelp, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
 
 
 	bSizerMain->Add( sbSizerControls, 0, wxEXPAND, 5 );
 
 	wxBoxSizer* bSizerDirection;
 	bSizerDirection = new wxBoxSizer( wxVERTICAL );
+
+	wxBoxSizer* bSizer8;
+	bSizer8 = new wxBoxSizer( wxHORIZONTAL );
+
+	m_buttonCreate = new wxButton( this, wxID_ANY, _("Create Naval Unit"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_buttonCreate->SetFont( wxFont( 12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Arial") ) );
+
+	bSizer8->Add( m_buttonCreate, 0, wxALL, 5 );
+
+	wxString m_choiceNavObjectChoices[] = { _("frigate"), _("destroyer") };
+	int m_choiceNavObjectNChoices = sizeof( m_choiceNavObjectChoices ) / sizeof( wxString );
+	m_choiceNavObject = new wxChoice( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, m_choiceNavObjectNChoices, m_choiceNavObjectChoices, 0 );
+	m_choiceNavObject->SetSelection( 0 );
+	bSizer8->Add( m_choiceNavObject, 0, wxALL, 5 );
+
+
+	bSizerDirection->Add( bSizer8, 1, wxEXPAND, 5 );
 
 	wxBoxSizer* bSizer6;
 	bSizer6 = new wxBoxSizer( wxHORIZONTAL );
@@ -105,7 +119,8 @@ onavsimUIDialogBase::onavsimUIDialogBase( wxWindow* parent, wxWindowID id, const
 	this->Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( onavsimUIDialogBase::OnClose ) );
 	this->Connect( wxEVT_SIZE, wxSizeEventHandler( onavsimUIDialogBase::OnSize ) );
 	m_datePickerDate->Connect( wxEVT_DATE_CHANGED, wxDateEventHandler( onavsimUIDialogBase::OnDateTimeChanged ), NULL, this );
-	m_button1->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::About ), NULL, this );
+	m_buttonHelp->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::About ), NULL, this );
+	m_buttonCreate->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnCreateNavObject ), NULL, this );
 	m_buttonStart->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnStartDriving ), NULL, this );
 	m_buttonStop->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnStopDriving ), NULL, this );
 	this->Connect( wxID_ANY, wxEVT_TIMER, wxTimerEventHandler( onavsimUIDialogBase::OnTimer ) );
@@ -117,7 +132,8 @@ onavsimUIDialogBase::~onavsimUIDialogBase()
 	this->Disconnect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( onavsimUIDialogBase::OnClose ) );
 	this->Disconnect( wxEVT_SIZE, wxSizeEventHandler( onavsimUIDialogBase::OnSize ) );
 	m_datePickerDate->Disconnect( wxEVT_DATE_CHANGED, wxDateEventHandler( onavsimUIDialogBase::OnDateTimeChanged ), NULL, this );
-	m_button1->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::About ), NULL, this );
+	m_buttonHelp->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::About ), NULL, this );
+	m_buttonCreate->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnCreateNavObject ), NULL, this );
 	m_buttonStart->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnStartDriving ), NULL, this );
 	m_buttonStop->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnStopDriving ), NULL, this );
 	this->Disconnect( wxID_ANY, wxEVT_TIMER, wxTimerEventHandler( onavsimUIDialogBase::OnTimer ) );
@@ -267,8 +283,15 @@ ControlDialogBase::ControlDialogBase( wxWindow* parent, wxWindowID id, const wxS
 	m_staticText11->Wrap( -1 );
 	bSizer7->Add( m_staticText11, 0, wxALL, 5 );
 
-	m_sliderDirection = new wxSlider( this, wxID_ANY, 50, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
+	m_sliderDirection = new wxSlider( this, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
 	bSizer7->Add( m_sliderDirection, 0, wxALL, 5 );
+
+	m_staticText12 = new wxStaticText( this, wxID_ANY, _("Speed"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText12->Wrap( -1 );
+	bSizer7->Add( m_staticText12, 0, wxALL, 5 );
+
+	m_sliderSpeed = new wxSlider( this, wxID_ANY, 0, 0, 100, wxDefaultPosition, wxDefaultSize, wxSL_HORIZONTAL );
+	bSizer7->Add( m_sliderSpeed, 0, wxALL, 5 );
 
 	m_buttonTest = new wxButton( this, wxID_ANY, _("TestControl"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer7->Add( m_buttonTest, 0, wxALL, 5 );

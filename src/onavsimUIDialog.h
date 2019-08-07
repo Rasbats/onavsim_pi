@@ -26,6 +26,7 @@
 
 #ifndef __onavsimUIDIALOG_H__
 #define __onavsimUIDIALOG_H__
+#endif
 
 #include "wx/wxprec.h"
 
@@ -53,21 +54,20 @@
 #include "timectrl.h"
 #include <wx/colordlg.h>
 #include <wx/event.h>
-
-
+#include <algorithm>
 
 using namespace std;
 
 #ifndef PI
 #define PI        3.1415926535897931160E0      /* pi */
-#endif
+
 
 #if !defined(NAN)
 static const long long lNaN = 0xfff8000000000000;
 #define NAN (*(double*)&lNaN)
 #endif
 
-#define RT_RCDATA2           MAKEINTRESOURCE(999)
+
 
 #ifdef __WXOSX__
 #define onavsim_DIALOG_STYLE wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER|wxSTAY_ON_TOP
@@ -77,39 +77,18 @@ static const long long lNaN = 0xfff8000000000000;
 
 class onavsimOverlayFactory;
 class PlugIn_ViewPort;
-class PositionRecordSet;
-
 
 class wxFileConfig;
 class onavsim_pi;
 class wxGraphicsContext;
 class onavsimUIDialog;
 
-class Position
-{
+class NavObject {
 public:
-	double latD, lonD;
-    wxString lat, lon;
-	wxString port_num;
-
-	wxString minus_6, minus_5, minus_4, minus_3 ,minus_2, minus_1, zero;
-	wxString plus_1, plus_2,  plus_3, plus_4, plus_5, plus_6;
-    Position *prev, *next; /* doubly linked circular list of positions */
-};
-
-class PortTides
-{
-public:
-
-	wxString m_portID, m_portName, m_IDX;
-	double m_spRange, m_npRange;
-
-};
-
-class StandardPort
-{
-public:
-	wxString PORT_NUMBER,PORT_NAME,MEAN_SPRING_RANGE,MEAN_NEAP_RANGE,EXTRA,IDX;
+	wxString name;
+	int id;
+	double lat, lon, dir, spd;
+	bool isDead;
 };
 
 
@@ -126,6 +105,9 @@ private:
 
 
 };
+
+
+
 
 class onavsimUIDialog: public onavsimUIDialogBase {
 public:
@@ -154,7 +136,6 @@ public:
 	bool onPrev;
 
     wxString m_FolderSelected;
-    TCMgr           *m_ptcmgr;
 	int m_IntervalSelected;
 	
 	time_t myCurrentTime; 
@@ -174,13 +155,21 @@ public:
 	void OnStartDriving(wxCommandEvent& event);
 	void OnStopDriving(wxCommandEvent& event);
 	void startDriving();
-	void startTest();
+	void startTest(wxString myTimer);
+	
+	void OnCreateNavObject(wxCommandEvent& event);
 
 	
 	onavsim_pi *plugin;
 	void About(wxCommandEvent& event);
 
 	ControlDialog *m_pControlDialog;
+
+	std::vector<NavObject>myNavObjects;
+	
+	wxArrayClassInfo myInfo;
+	
+     wxWindow *pParent;
 
 private:
 
@@ -191,7 +180,7 @@ private:
 
 
     //    Data
-    wxWindow *pParent;
+    
     onavsim_pi *pPlugIn;
 
     PlugIn_ViewPort  *m_vp;
@@ -200,16 +189,10 @@ private:
 	wxString         g_SData_Locn;
 	wxString        *pTC_Dir;
 
-	int         m_corr_mins;
-    wxString    m_stz;
-    int         m_t_graphday_00_at_station;
-    wxDateTime  m_graphday;
-    int         m_plot_y_offset;
-
 	bool isNowButton;
 	wxTimeSpan  myTimeOfDay;
 
 };
 
-#endif
 
+#endif
