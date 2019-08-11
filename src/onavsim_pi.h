@@ -35,7 +35,7 @@
 #endif //precompiled headers
 
 #define     PLUGIN_VERSION_MAJOR    0
-#define     PLUGIN_VERSION_MINOR    3
+#define     PLUGIN_VERSION_MINOR    4
 
 #define     MY_API_VERSION_MAJOR    1
 #define     MY_API_VERSION_MINOR    15
@@ -46,7 +46,8 @@
 
 extern wxString myVColour[5]; 
 
-class ControlDialog;
+class UnitControlDialog;
+class NavUnitDialog;
 
 
 //----------------------------------------------------------------------------------------------------------
@@ -93,8 +94,7 @@ public:
       void SetonavsimDialogY    (int x){ m_onavsim_dialog_y = x;}
       void SetonavsimDialogSizeX(int x){ m_onavsim_dialog_sx = x;}
       void SetonavsimDialogSizeY(int x){ m_onavsim_dialog_sy = x;}
-      void SetColorScheme(PI_ColorScheme cs);
-	  void SetText();
+      void SetColorScheme(PI_ColorScheme cs);	  
 
       void OnonavsimDialogClose();
 
@@ -109,7 +109,9 @@ public:
   
       onavsimOverlayFactory *GetonavsimOverlayFactory(){ return m_ponavsimOverlayFactory; }
 
-	  ControlDialogBase * myControlDialog;
+	  UnitControlDialogBase * myControlDialog;
+	  NavUnitDialogBase * myNavUnitDialog;
+
       onavsimUIDialog     *m_ponavsimDialog;
 
 private:

@@ -29,7 +29,7 @@ SET(TITLE_NAME onavsim)
 SET(CPACK_PACKAGE_CONTACT "Mike Rossiter")
 
 SET(VERSION_MAJOR "0")
-SET(VERSION_MINOR "3")
+SET(VERSION_MINOR "4")
 
 SET(NAME_SUFFIX "ov50")
 
@@ -45,6 +45,8 @@ IF(onavsim_USE_SVG)
 ENDIF(onavsim_USE_SVG)
 
 SET(SRC_onavsim
+        src/AisMaker.cpp
+        src/AisMaker.h
         src/bbox.cpp
         src/bbox.h
         src/onavsim_pi.h

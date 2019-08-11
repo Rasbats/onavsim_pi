@@ -77,7 +77,6 @@ onavsimOverlayFactory::onavsimOverlayFactory( onavsimUIDialog &dlg )
 	m_bShowFillColour = m_dlg.m_bUseFillColour;
 	m_sShowScale = m_dlg.m_sUseScale;
 
-	m_dtUseNew = m_dlg.m_dtNow;	
 }
 
 onavsimOverlayFactory::~onavsimOverlayFactory()
@@ -775,9 +774,8 @@ void onavsimOverlayFactory::DrawAllCurrentsInViewPort(PlugIn_ViewPort *BBox, boo
 	float current_draw_scaler = mm_per_knot * m_pix_per_mm * 100 / 100.0;
 
 	// End setting up scaler
-
-    double speedText, dir;
-    
+ 
+	int dir, spd;
 
 	pTCFont = wxTheFontList->FindOrCreateFont(12, wxDEFAULT, wxNORMAL, wxBOLD, FALSE, wxString(_T("Eurostile Extended")));
 	if (m_pdc) {
@@ -785,93 +783,100 @@ void onavsimOverlayFactory::DrawAllCurrentsInViewPort(PlugIn_ViewPort *BBox, boo
 	}
      
 	// Iterate over all the navobjects in the collection
+	if (m_dlg.inControl) {
+		for (std::vector<NavObject>::iterator it = m_dlg.myNavObjects.begin(); it != m_dlg.myNavObjects.end(); it++) {
 
-	for (std::vector<NavObject>::iterator it = m_dlg.myNavObjects.begin(); it != m_dlg.myNavObjects.end(); it++) {
+			wxString navName = it->name;
+			wxString navType = it->type;
 
-		wxString navName = it->name;
-		
-		speedText = it->spd;
-		speedText *= 7200;
-		m_dlg.m_textCtrlTest->SetValue(wxString::Format("%3.1f", speedText));
-		
-		double newLat, newLon;
+			dir = it->sliderDirValue;
+			double ddir;
+			ddir = (double)dir;
 
-		PositionBearingDistanceMercator_Plugin(it->lat, it->lon, it->dir, it->spd, &newLat, &newLon);
-		
-		double lat = newLat;
-		double lon = newLon;
+			spd = it->sliderSpdValue;
+			double dspd;
+			dspd = (double)spd;
 
-		it->lat = newLat;
-		it->lon = newLon;
+			dspd /= 7200;  //500 msec		
 
-		dir = it->dir;
-		
-		
+			double newLat, newLon;
 
-		int pixxc, pixyc;
-		wxPoint cpoint;
+			PositionBearingDistanceMercator_Plugin(it->lat, it->lon, ddir, dspd, &newLat, &newLon);
 
-		GetCanvasPixLL(BBox, &cpoint, lat, lon);
+			double lat = newLat;
+			double lon = newLon;
 
-		pixxc = cpoint.x;
-		pixyc = cpoint.y;
+			it->lat = newLat;
+			it->lon = newLon;
+			it->dir = ddir;
+			it->spd = dspd * 7200;
 
-		int shift = 0;
-		wxPoint ab;
-		GetCanvasPixLL(BBox, &ab, lat, lon);
+			int pixxc, pixyc;
+			wxPoint cpoint;
 
-		if (!m_pdc) {
+			GetCanvasPixLL(BBox, &cpoint, lat, lon);
 
-			DrawNavUnitInViewPort(navName, 270 - dir, ab.x, ab.y);
+			pixxc = cpoint.x;
+			pixyc = cpoint.y;
 
-			if (m_bShowRate) {
+			int shift = 0;
+			wxPoint ab;
+			GetCanvasPixLL(BBox, &ab, lat, lon);
 
-				DrawGLLabels(this, m_pdc, BBox,
-					DrawGLText(speedText, 1), lat, lon, 0);
+			dspd *= 7200;  // actual speed
 
-				if (!m_bHighResolution) {
-					shift = 13;
+			if (!m_pdc) {
+
+				DrawNavUnitInViewPort(navName, navType, 270 - ddir, ab.x, ab.y);
+
+				if (m_bShowRate) {
+
+					DrawGLLabels(this, m_pdc, BBox,
+						DrawGLText(dspd, 1), lat, lon, 0);
+
+					if (!m_bHighResolution) {
+						shift = 13;
+					}
+					else {
+						shift = 26;
+					}
 				}
-				else {
-					shift = 26;
-				}
-			}
-			if (m_bShowDirection) {
+				if (m_bShowDirection) {
 
-				DrawGLLabels(this, m_pdc, BBox,
-					DrawGLTextDir(dir, 0), lat, lon, shift);
-			}
-		}
-		else {
-
-			DrawNavUnitInViewPort(navName, 270 - dir, ab.x, ab.y);
-
-			char sbuf[20];
-			if (m_bShowRate) {
-				snprintf(sbuf, 19, "%3.1f", speedText);
-				m_pdc->DrawText(wxString(sbuf, wxConvUTF8), pixxc, pixyc);
-				if (!m_bHighResolution) {
-					shift = 13;
-				}
-				else {
-					shift = 26;
+					DrawGLLabels(this, m_pdc, BBox,
+						DrawGLTextDir(ddir, 0), lat, lon, shift);
 				}
 			}
+			else {
 
-			if (m_bShowDirection) {
-				snprintf(sbuf, 19, "%03.0f", dir);
-				m_pdc->DrawText(wxString(sbuf, wxConvUTF8), pixxc, pixyc + shift);
+				DrawNavUnitInViewPort(navName, navType, 270 - ddir, ab.x, ab.y);
+
+				char sbuf[20];
+				if (m_bShowRate) {
+					snprintf(sbuf, 19, "%3.1f", dspd);
+					m_pdc->DrawText(wxString(sbuf, wxConvUTF8), pixxc, pixyc);
+					if (!m_bHighResolution) {
+						shift = 13;
+					}
+					else {
+						shift = 26;
+					}
+				}
+
+				if (m_bShowDirection) {
+					snprintf(sbuf, 19, "%03.0f", ddir);
+					m_pdc->DrawText(wxString(sbuf, wxConvUTF8), pixxc, pixyc + shift);
+				}
+
 			}
 
 		}
 
 	}
-
-	
 						
 }        
 
-void onavsimOverlayFactory::DrawNavUnitInViewPort(wxString navName, double rot, int x, int y) {
+void onavsimOverlayFactory::DrawNavUnitInViewPort(wxString navName, wxString navType, double rot, int x, int y) {
 
 	wxFileName fn;
 	wxString png_nav;
@@ -881,7 +886,7 @@ void onavsimOverlayFactory::DrawNavUnitInViewPort(wxString navName, double rot, 
 	fn.AppendDir(_T("onavsim_pi"));
 	fn.AppendDir(_T("data"));
 
-	wxString pngName = navName	+ ".png" ;
+	wxString pngName = navType	+ ".png" ;
 	fn.SetFullName(pngName);
 	png_nav = fn.GetFullPath();
 

@@ -38,6 +38,8 @@
 #include <wx/glcanvas.h>
 
 #include "onavsimUIDialogBase.h"
+#include "AisMaker.h"
+#include <sstream>
 
 #include "tinyxml.h"
 #include <wx/progdlg.h>
@@ -83,31 +85,56 @@ class onavsim_pi;
 class wxGraphicsContext;
 class onavsimUIDialog;
 
+
 class NavObject {
 public:
-	wxString name;
-	int id;
+	wxString name, type;
+	int id, mmsi;
 	double lat, lon, dir, spd;
 	bool isDead;
+	int sliderDirValue, sliderSpdValue;
 };
 
 
-class ControlDialog: public ControlDialogBase
+class ControlDialog: public UnitControlDialogBase
 {
 public:
-	ControlDialog(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Add Tidal Data"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(-1, -1), long style = wxCAPTION | wxDEFAULT_DIALOG_STYLE | wxMAXIMIZE_BOX | wxRESIZE_BORDER);
+	ControlDialog(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Unit Controller"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(-1, -1), long style = wxCAPTION | wxDEFAULT_DIALOG_STYLE | wxMAXIMIZE_BOX | wxRESIZE_BORDER);
 	
-	onavsimUIDialog *Plugin_Dialog;
-	void OnTestControl(wxCommandEvent& event);
+	onavsimUIDialog *Plugin_Dialog;		
+	void OnSpeedChanged(wxCommandEvent& event);
+	void OnButtonStart(wxCommandEvent& event);
+	void OnButtonStop(wxCommandEvent& event);
+	void OnMidships(wxCommandEvent& event);
+	
+	void OnMinus1(wxCommandEvent& event);
+	void OnMinus10(wxCommandEvent& event);
+	void OnPlus10(wxCommandEvent& event);
+	void OnPlus1(wxCommandEvent& event);
 
+	void OnClose(wxCloseEvent& event);
+	void SetUnitControls(int newSpeed);
+	double myInitDir, myDir, unitDir;
+	int initSpd, initRudder;
 	
 private:
 
 
 };
 
+class NavUnitDialog : public NavUnitDialogBase
+{
+public:
+	NavUnitDialog(wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = _("Add Naval Unit"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize(-1, -1), long style = wxCAPTION | wxDEFAULT_DIALOG_STYLE | wxMAXIMIZE_BOX | wxRESIZE_BORDER);
+
+	onavsimUIDialog *Plugin_Dialog;		
+
+private:
 
 
+};
+
+class AisMaker;
 
 class onavsimUIDialog: public onavsimUIDialogBase {
 public:
@@ -129,20 +156,6 @@ public:
 
 	wxString myUseColour[5];
 
-	wxDateTime m_dtNow;
-	double m_dInterval;
-
-	bool onNext;
-	bool onPrev;
-
-    wxString m_FolderSelected;
-	int m_IntervalSelected;
-	
-	time_t myCurrentTime; 
-
-	
-	wxString MakeDateTimeLabel(wxDateTime myDateTime);    
-
 	//naval simulation
 	double frigateLat;
 	double frigateLon;
@@ -152,27 +165,47 @@ public:
 	void OnTimer(wxTimerEvent& event);
 	void Notify();
 
+	void OnCheckNavalUnit(wxCommandEvent& event);
+
 	void OnStartDriving(wxCommandEvent& event);
 	void OnStopDriving(wxCommandEvent& event);
+	void StartControlDriving();
 	void startDriving();
-	void startTest(wxString myTimer);
 	
 	void OnCreateNavObject(wxCommandEvent& event);
+	void OnRemoveNavObject(wxCommandEvent& event);
+	void CreateNavUnit(wxString unitname, wxString unittype);
 
 	
 	onavsim_pi *plugin;
 	void About(wxCommandEvent& event);
 
 	ControlDialog *m_pControlDialog;
+	NavUnitDialog *m_pNavUnitDialog;
+
+	// Variables to hold course and speed of the unit
+	int m_unitCourse;
+	int m_unitSpeed;
+
 
 	std::vector<NavObject>myNavObjects;
 	
 	wxArrayClassInfo myInfo;
 	
      wxWindow *pParent;
+	 AisMaker* myAIS;
+
+	 wxString activeNavalUnit;
+	 bool goodToGo;
+	 wxString itemChecked;
+	 bool inControl;
+	 int initRudder;
+	 int myDir;
+	 int mySpd;
+	 int dirChange;
 
 private:
-
+	
     void OnClose( wxCloseEvent& event );
     void OnMove( wxMoveEvent& event );
     void OnSize( wxSizeEvent& event );	
@@ -191,6 +224,8 @@ private:
 
 	bool isNowButton;
 	wxTimeSpan  myTimeOfDay;
+
+	
 
 };
 

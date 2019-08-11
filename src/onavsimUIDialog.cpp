@@ -38,6 +38,7 @@
 #include <time.h>
 
 #include "onavsim_pi.h"
+
 #include "folder.xpm"
 #include "icons.h"
 #include <wx/arrimpl.cpp>
@@ -49,7 +50,7 @@
 
 #include <wx/colordlg.h>
 #include <wx/event.h>
-#include "onavsim_pi.h"
+
 
 using namespace std;
 
@@ -87,9 +88,6 @@ onavsimUIDialog::onavsimUIDialog(wxWindow *parent, onavsim_pi *ppi, wxWindowID i
 		pConf->Read ( _T ( "onavsimUseFillColour" ), &m_bUseFillColour, 1);
 		pConf->Read(_T("onavsimUseScale"), &m_sUseScale, _T("1"));
 
-		pConf->Read ( _T ( "onavsimInterval" ), &m_IntervalSelected, 20L);
-		pConf->Read ( _T ( "onavsimFolder" ), &m_FolderSelected);
-
 		pConf->Read( _T("VColour0"), &myVColour[0], myVColour[0] );
 		pConf->Read( _T("VColour1"), &myVColour[1], myVColour[1] );
 		pConf->Read( _T("VColour2"), &myVColour[2], myVColour[2] );
@@ -113,8 +111,16 @@ onavsimUIDialog::onavsimUIDialog(wxWindow *parent, onavsim_pi *ppi, wxWindowID i
 	frigateLat = 50.0;
 	frigateLon = -4.0;
 	frigateSpd = 0;
+	goodToGo = true;
+	itemChecked = "";
+
+	m_unitCourse = 0;
+	m_unitSpeed = 0;
 
 	myNavObjects.clear();
+
+	inControl = false;
+	dirChange = 0;
 
 	DimeWindow( this );
 	
@@ -142,7 +148,6 @@ onavsimUIDialog::~onavsimUIDialog()
     }
     
     this->Disconnect( wxEVT_MOVE, wxMoveEventHandler( onavsimUIDialog::OnMove ) );
-    m_timePickerTime->Disconnect( wxEVT_DATE_CHANGED, wxDateEventHandler( onavsimUIDialog::OnDateTimeChanged ), NULL, this );
         
 }
 
@@ -196,133 +201,407 @@ void onavsimUIDialog::OnTimer(wxTimerEvent& event) {
 	Notify();
 }
 
+void onavsimUIDialog::OnCheckNavalUnit(wxCommandEvent& event) {
 
-void onavsimUIDialog::Notify() {
-	
-	int s = m_choiceNavObject->GetSelection();
-	wxString c = m_choiceNavObject->GetString(s);
-	
+	int c = 0;
+	int itemC;
+	int s;
+	for (int c = 0; c < m_checkListNavalUnits->GetCount(); c++) {
+		if (m_checkListNavalUnits->IsSelected(c)) {
+			m_checkListNavalUnits->Check(c, true);
+			itemC = c;
+			itemChecked = m_checkListNavalUnits->GetString(c);					
+		}
+		else {
+			m_checkListNavalUnits->Check(c, false);
+		}
+	}
 
 	for (std::vector<NavObject>::iterator it = myNavObjects.begin(); it != myNavObjects.end(); it++) {
 
-		if (it->name == c) {						     		
-
-			int dir = m_sliderDirection->GetValue();
-			double ddir;
-			ddir = (double)dir;
-
-			int spd = m_sliderSpeed->GetValue();
-			double dspd;
-			dspd = (double)spd;
+		if (it->name == itemChecked) {
+			if (inControl) {
+				myDir = it->sliderDirValue;
+			    m_pControlDialog->m_sliderSpeed->SetValue(it->sliderSpdValue);
+			}
 			
-			dspd /= 7200;  // m_interval = 500
+			RequestRefresh(this);
+			break;
+		}
+	}
 
-			it->spd = dspd;
-			it->dir = ddir;
+	
+}
 
-			//PositionBearingDistanceMercator_Plugin(frigateLat, frigateLon, ddir, frigateSpd, &newFrigateLat, &newFrigateLon);
-			
+void onavsimUIDialog::Notify() {
+
+	for (std::vector<NavObject>::iterator it = myNavObjects.begin(); it != myNavObjects.end(); it++) {
+
+		if (it->name == itemChecked) {
+
+			initRudder = m_pControlDialog->m_sliderRudder->GetValue();
+			double myRudder = initRudder - 30;
+			if (myRudder < 0) {
+				initRudder -= 30.0;
+				myRudder = std::abs(initRudder);
+				myDir -= myRudder;
+				double myPortRudder = 30 - std::abs(myRudder);
+				m_pControlDialog->m_gaugeRudderPort->SetValue(myPortRudder);
+				m_pControlDialog->m_textCtrlRudderPort->SetValue(wxString::Format(_T("%.0f"), myRudder) + _T(" P"));
+				m_pControlDialog->m_gaugeRudderStbd->SetValue(0);
+				m_pControlDialog->m_textCtrlRudderStbd->SetValue(_T(""));
+			}
+			else if (myRudder >= 0) {
+
+				initRudder -= 30;
+				myDir += initRudder;
+				m_pControlDialog->m_gaugeRudderStbd->SetValue(myRudder);
+				if (myRudder == 0) {
+					m_pControlDialog->m_textCtrlRudderStbd->SetValue(_T(""));
+				}
+				else {
+					m_pControlDialog->m_textCtrlRudderStbd->SetValue(wxString::Format(_T("%.0f"), myRudder) + _T(" S"));
+				}
+				m_pControlDialog->m_gaugeRudderPort->SetValue(0);
+				m_pControlDialog->m_textCtrlRudderPort->SetValue(_T(""));
+
+			}
+
+			if (myDir < 0) {
+				myDir += 360;
+			}
+			else if (myDir > 360) {
+				myDir -= 360;
+			}
+
+			myDir += dirChange;
+			dirChange = 0;
+			it->sliderDirValue = myDir;
+			m_pControlDialog->m_stHeading->SetLabel(wxString::Format(_T("%003.0f"), (double)myDir));
+
+			it->sliderSpdValue = m_pControlDialog->m_sliderSpeed->GetValue();
+			int thisSpeed = m_pControlDialog->m_sliderSpeed->GetValue();
+			m_pControlDialog->m_stSpeed->SetLabel(wxString::Format(_T("%3.0f"), (double)thisSpeed));
+
+			break;
 		}
 
 	}
 
+	//PositionBearingDistanceMercator_Plugin(frigateLat, frigateLon, ddir, frigateSpd, &newFrigateLat, &newFrigateLon);
+
+	wxString timeStamp = wxString::Format(_T("%i"), wxGetUTCTime());
+	int newMMSI = 123;
+	for (std::vector<NavObject>::iterator it = myNavObjects.begin(); it != myNavObjects.end(); it++) {
+
+		wxString myNMEAais = myAIS->nmeaEncode(_T("18"), newMMSI, _T("5"), it->sliderSpdValue, it->lat, it->lon, it->sliderDirValue, it->sliderDirValue, _T("B"), timeStamp);
+		PushNMEABuffer(myNMEAais + "\n");
+
+		newMMSI++;
+	}
+
+
+	//wxString myNMEAais = myAIS->nmeaEncode(_T("18"), 12345, _T("5"), dspd, it->lat, it->lon, ddir, ddir, _T("B"), timeStamp);
+	//PushNMEABuffer(myNMEAais + "\n");
+
+		
+
+	
+	
 	RequestRefresh(pParent);
 
 }
 
 void onavsimUIDialog::OnStartDriving(wxCommandEvent& event) {
 
-	startDriving();
+	StartControlDriving();
 }
 
 void onavsimUIDialog::OnStopDriving(wxCommandEvent& event) {
 
 	if (m_timerFrigate.IsRunning()) m_timerFrigate.Stop();
 
+	if (inControl) {
+		m_pControlDialog->Hide();
+		m_pControlDialog->Destroy();
+		inControl = false;
+	}
+	else {
+		wxMessageBox("Unit Controller not active");
+	}
+
 }
 
 void onavsimUIDialog::startDriving() {
 	
+	int m_interval = 500;
+	m_timerFrigate.Start(m_interval, wxTIMER_CONTINUOUS); // start timer
+
+}
+
+void onavsimUIDialog::StartControlDriving() {
+
 	if (myNavObjects.size() == 0) {
 		wxMessageBox("Please create a unit to drive");
 		return;
 	}
-	
+
+	bool unitSelected = false;
+
+	for (int c = 0; c < m_checkListNavalUnits->GetCount(); c++) {
+		if (m_checkListNavalUnits->IsSelected(c)) {
+			unitSelected = true;
+		}
+	}
+
+	if (!unitSelected) {
+		wxMessageBox("No unit selected");
+		return;
+	}
+
+	if (inControl) {
+		wxMessageBox("Already in control");
+		return;
+	}
+
+
+	m_pControlDialog = new ControlDialog(this);
+
+
+	inControl = true;
+
+	m_pControlDialog->Plugin_Dialog = this;
+
+	m_pControlDialog->Show();
+	m_pControlDialog->Fit();
+
+	int c = 0;
+	int itemC;
+
+	for (c = 0; c < m_checkListNavalUnits->GetCount(); c++) {
+		if (m_checkListNavalUnits->IsSelected(c)) {			
+			itemChecked = m_checkListNavalUnits->GetStringSelection();
+			break;
+		}		
+	}
+
+	for (std::vector<NavObject>::iterator it = myNavObjects.begin(); it != myNavObjects.end(); it++) {
+
+		if (it->name == itemChecked) {
+			myDir = it->sliderDirValue;
+			mySpd = it->sliderSpdValue;
+			m_pControlDialog->SetUnitControls(it->sliderSpdValue);			
+			break;
+		}
+	}
+
 	double scale_factor = GetOCPNGUIToolScaleFactor_PlugIn();
 	JumpToPosition(frigateLat, frigateLon, scale_factor);
 
 	int m_interval = 500;
 	m_timerFrigate.Start(m_interval, wxTIMER_CONTINUOUS); // start timer
+
+
+
+	myAIS = new AisMaker();
 }
 
-
-wxString onavsimUIDialog::MakeDateTimeLabel(wxDateTime myDateTime)
-{			
-    const wxString dateLabel(myDateTime.Format( _T( "%a") ));
-    m_staticTextDatetime->SetLabel(dateLabel);
-    
-    m_datePickerDate->SetValue(myDateTime.GetDateOnly());
-    m_timePickerTime->SetTime(myDateTime.GetHour(),myDateTime.GetMinute(), myDateTime.GetSecond());
-
-    return dateLabel;
-}
 
 void onavsimUIDialog::About(wxCommandEvent& event)
 {
 	
 	wxMessageBox("Not yet implemented");
-	
-
-	//m_pControlDialog->Plugin_Dialog = this;
-	//m_pControlDialog->Show();
-	//m_pControlDialog->Fit();
-	/*
-	plugin->myControlDialog = new ControlDialogBase(this,wxID_ANY, _("Test Control"), { 100, 100 }, wxDefaultSize, 0);
-	if (plugin->myControlDialog->ShowModal() == wxID_OK)
-	{
-		wxMessageBox("here");
-	}
-	*/
 	event.Skip();
 }
 
-void onavsimUIDialog::startTest(wxString myTimer)
-{
-	// placeholder for another test
-	
-
-}
-
-
-
 void onavsimUIDialog::OnCreateNavObject(wxCommandEvent& event) {
 
-	int s = m_choiceNavObject->GetSelection();
-	wxString c = m_choiceNavObject->GetString(s);
+	if (inControl) {
+		wxMessageBox("Unable to create a unit while the controller is in use");
+		return;
+	}
+	
+	m_pNavUnitDialog = new NavUnitDialog(this);
 
-	NavObject newNavObj;
-	newNavObj.name = c;
-	newNavObj.id = s;
-	newNavObj.lat = frigateLat;
-	newNavObj.lon = frigateLon;
-	newNavObj.spd = 0.;
-	newNavObj.dir = 0.;
+	m_pNavUnitDialog->Plugin_Dialog = this;
+	m_pNavUnitDialog->Show();
+	m_pNavUnitDialog->Fit();
 
-	myNavObjects.push_back(newNavObj);
+	if (m_pNavUnitDialog->ShowModal() == wxID_OK)
+	{
 
+		wxString name = m_pNavUnitDialog->m_textNavUnitName->GetValue();
+		wxString type = m_pNavUnitDialog->m_choiceNavUnitType->GetStringSelection();
+
+		m_pNavUnitDialog->Plugin_Dialog->CreateNavUnit(name, type);
+	}
+
+	event.Skip();
+	
 	RequestRefresh(pParent);
 
 }
 
-ControlDialog::ControlDialog(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : ControlDialogBase(parent, id, title, pos, size, style)
+template< typename TContainer >
+static bool EraseFromUnorderedByIndex(TContainer& inContainer, size_t inIndex)
+{
+	if (inIndex < inContainer.size())
+	{
+		if (inIndex != inContainer.size() - 1)
+			inContainer[inIndex] = inContainer.back();
+		inContainer.pop_back();
+		return true;
+	}
+	return false;
+}
+
+void onavsimUIDialog::OnRemoveNavObject(wxCommandEvent& event) {
+
+	if (inControl) {
+		wxMessageBox("Unable to remove a unit while the controller is in use");
+		return;
+	}
+
+	int pos = 0;
+	int c;
+
+	for (c = 0; c < m_checkListNavalUnits->GetCount(); c++) {
+		if (m_checkListNavalUnits->IsSelected(c)) {
+			itemChecked = m_checkListNavalUnits->GetStringSelection();
+			break;
+		}
+	}
+
+	for (std::vector<NavObject>::iterator it = myNavObjects.begin(); it != myNavObjects.end(); it++) {
+
+		if (it->name == itemChecked) {			
+			break;
+		}
+		pos++;
+	}
+
+	EraseFromUnorderedByIndex(myNavObjects, pos);
+
+	m_checkListNavalUnits->Delete(c);
+	
+	event.Skip();
+
+	RequestRefresh(pParent);
+}
+
+void onavsimUIDialog::CreateNavUnit(wxString unitname, wxString unittype) {
+
+	
+	NavObject newNavObj;
+	newNavObj.name = unitname;
+	newNavObj.type = unittype;
+	newNavObj.lat = frigateLat;
+	newNavObj.lon = frigateLon;
+	newNavObj.spd = 0.;
+	newNavObj.dir = 0.;
+	newNavObj.mmsi = 122345;
+	newNavObj.sliderSpdValue = 0.;
+	newNavObj.sliderDirValue = 0.;
+
+	myNavObjects.push_back(newNavObj);
+
+	//wxMessageBox(unitname);
+
+	wxArrayString myItems;
+	myItems.Add(unitname);
+
+	int c;
+	for (c = 0; c < m_checkListNavalUnits->GetCount(); c++) {
+		m_checkListNavalUnits->Check(c, false);
+	}
+
+	m_checkListNavalUnits->InsertItems(myItems, 0);
+	m_checkListNavalUnits->SetSelection(0);
+	m_checkListNavalUnits->Check(0, true);
+
+	RequestRefresh(pParent);
+
+}
+//
+// The controller for the units
+//
+ControlDialog::ControlDialog(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : UnitControlDialogBase(parent, id, title, pos, size, style)
 {
 
 }
 
-void ControlDialog::OnTestControl(wxCommandEvent& event) {
+void ControlDialog::OnSpeedChanged(wxCommandEvent& event) {
 
-	//wxMessageBox("here at test");
+	Plugin_Dialog->m_unitSpeed = m_sliderSpeed->GetValue();
+}
+
+
+void ControlDialog::OnButtonStart(wxCommandEvent& event) {
+
 	Plugin_Dialog->startDriving();
-	Plugin_Dialog->m_sliderSpeed->SetValue(50);
+
+}
+
+void ControlDialog::OnButtonStop(wxCommandEvent& event) {
+
+	if (Plugin_Dialog->m_timerFrigate.IsRunning()) Plugin_Dialog->m_timerFrigate.Stop();	
+	
+	
+}
+
+void ControlDialog::OnMidships(wxCommandEvent& event) {
+
+	m_sliderRudder->SetValue(30);
+
+}
+
+void ControlDialog::OnMinus1(wxCommandEvent& event) {
+
+	Plugin_Dialog->dirChange = -1;
+
+}
+
+void ControlDialog::OnMinus10(wxCommandEvent& event) {
+
+	Plugin_Dialog->dirChange = -10;
+
+}
+
+void ControlDialog::OnPlus10(wxCommandEvent& event) {
+
+	Plugin_Dialog->dirChange = 10;
+
+}
+
+void ControlDialog::OnPlus1(wxCommandEvent& event) {
+
+	Plugin_Dialog->dirChange = 1;
+
+}
+
+
+void ControlDialog::OnClose(wxCloseEvent& event) {
+
+	if (Plugin_Dialog->m_timerFrigate.IsRunning()) Plugin_Dialog->m_timerFrigate.Stop();
+
+	Plugin_Dialog->inControl = false;
+
+	Hide();
+	
+	Destroy();
+}
+
+void ControlDialog::SetUnitControls(int newSpeed) {
+	
+	m_sliderSpeed->SetValue(newSpeed);
+}
+
+
+
+//
+// The input dialog for setting up a unit
+//
+NavUnitDialog::NavUnitDialog(wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style) : NavUnitDialogBase(parent, id, title, pos, size, style)
+{
 
 }

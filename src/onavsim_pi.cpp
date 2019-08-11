@@ -296,9 +296,6 @@ void onavsim_pi::ShowPreferencesDialog( wxWindow* parent )
          if(m_ponavsimDialog )
 		 {	
 			 
-			 m_ponavsimDialog->m_FolderSelected = m_CopyFolderSelected;
-			 m_ponavsimDialog->m_IntervalSelected = m_CopyIntervalSelected;
-
 			 m_ponavsimDialog->m_bUseRate = m_bCopyUseRate;
 			 m_ponavsimDialog->m_bUseDirection = m_bCopyUseDirection; 
 			 m_ponavsimDialog->m_bUseHighRes = m_bCopyUseHighRes;	
@@ -546,12 +543,5 @@ void onavsim_pi::SetColorScheme(PI_ColorScheme cs)
     DimeWindow(m_ponavsimDialog);
 }
 
-void onavsim_pi::SetText()
-{
-	if (m_ponavsimDialog)
-		
-		m_ponavsimDialog->m_textCtrlTest->SetValue("Test");
-
-}
 
 
