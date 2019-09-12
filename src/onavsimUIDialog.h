@@ -41,22 +41,20 @@
 #include "AisMaker.h"
 #include <sstream>
 
-#include "tinyxml.h"
 #include <wx/progdlg.h>
 #include <list>
 #include <vector>
 
-#include "tcmgr.h"
-#include "wx/dateevt.h"
 #include "wx/stattext.h"
 #include "ocpn_plugin.h"
 #include "wx/dialog.h"
 #include <wx/calctrl.h>
 #include "wx/window.h"
-#include "timectrl.h"
+
 #include <wx/colordlg.h>
 #include <wx/event.h>
 #include <algorithm>
+#include "tinyxml/tinyxml.h"
 
 using namespace std;
 
@@ -165,7 +163,7 @@ public:
 	void OnTimer(wxTimerEvent& event);
 	void Notify();
 
-	void OnCheckNavalUnit(wxCommandEvent& event);
+	void OnListNavalUnit(wxListEvent& event);
 
 	void OnStartDriving(wxCommandEvent& event);
 	void OnStopDriving(wxCommandEvent& event);
@@ -176,6 +174,9 @@ public:
 	void OnRemoveNavObject(wxCommandEvent& event);
 	void CreateNavUnit(wxString unitname, wxString unittype);
 
+	void SaveNavUnitsToXml(vector<NavObject> &myNavObjects, wxString filename);
+	void LoadNavUnitsFromXml(vector<NavObject> &myNavObjects, wxString fleetUnits);
+	void OnPopulate(wxCommandEvent& event);
 	
 	onavsim_pi *plugin;
 	void About(wxCommandEvent& event);
@@ -189,6 +190,7 @@ public:
 
 
 	std::vector<NavObject>myNavObjects;
+	std::vector<NavObject>myFleetObjects;
 	
 	wxArrayClassInfo myInfo;
 	

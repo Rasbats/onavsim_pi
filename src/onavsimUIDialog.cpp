@@ -201,32 +201,25 @@ void onavsimUIDialog::OnTimer(wxTimerEvent& event) {
 	Notify();
 }
 
-void onavsimUIDialog::OnCheckNavalUnit(wxCommandEvent& event) {
+void onavsimUIDialog::OnListNavalUnit(wxListEvent& event) {
 
-	int c = 0;
-	int itemC;
-	int s;
-	for (int c = 0; c < m_checkListNavalUnits->GetCount(); c++) {
-		if (m_checkListNavalUnits->IsSelected(c)) {
-			m_checkListNavalUnits->Check(c, true);
-			itemC = c;
-			itemChecked = m_checkListNavalUnits->GetString(c);					
-		}
-		else {
-			m_checkListNavalUnits->Check(c, false);
-		}
+	long lSelectedItem = m_listNavalUnits->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+	if (lSelectedItem != -1) {
+		itemChecked = m_listNavalUnits->GetItemText(lSelectedItem);	
+		m_listNavalUnits->SetItemState(lSelectedItem, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+	}
+	else {
+		wxMessageBox("No unit selected");
+		return;
 	}
 
 	for (std::vector<NavObject>::iterator it = myNavObjects.begin(); it != myNavObjects.end(); it++) {
 
 		if (it->name == itemChecked) {
-			if (inControl) {
+			if (inControl) {				
 				myDir = it->sliderDirValue;
 			    m_pControlDialog->m_sliderSpeed->SetValue(it->sliderSpdValue);
-			}
-			
-			RequestRefresh(this);
-			break;
+			}			
 		}
 	}
 
@@ -346,15 +339,10 @@ void onavsimUIDialog::StartControlDriving() {
 		return;
 	}
 
-	bool unitSelected = false;
-
-	for (int c = 0; c < m_checkListNavalUnits->GetCount(); c++) {
-		if (m_checkListNavalUnits->IsSelected(c)) {
-			unitSelected = true;
-		}
-	}
-
-	if (!unitSelected) {
+	long lSelectedItem = m_listNavalUnits->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+	if (lSelectedItem != -1) {
+		itemChecked = m_listNavalUnits->GetItemText(lSelectedItem);
+	} else {
 		wxMessageBox("No unit selected");
 		return;
 	}
@@ -367,6 +355,9 @@ void onavsimUIDialog::StartControlDriving() {
 
 	m_pControlDialog = new ControlDialog(this);
 
+	wxPoint p = wxPoint(plugin->m_onavsim_dialog_x, plugin->m_onavsim_dialog_y + 300);
+	m_pControlDialog->Move(p);
+
 
 	inControl = true;
 
@@ -374,29 +365,22 @@ void onavsimUIDialog::StartControlDriving() {
 
 	m_pControlDialog->Show();
 	m_pControlDialog->Fit();
-
-	int c = 0;
-	int itemC;
-
-	for (c = 0; c < m_checkListNavalUnits->GetCount(); c++) {
-		if (m_checkListNavalUnits->IsSelected(c)) {			
-			itemChecked = m_checkListNavalUnits->GetStringSelection();
-			break;
-		}		
-	}
-
+	
+	double startLat, startLon;
 	for (std::vector<NavObject>::iterator it = myNavObjects.begin(); it != myNavObjects.end(); it++) {
 
 		if (it->name == itemChecked) {
 			myDir = it->sliderDirValue;
 			mySpd = it->sliderSpdValue;
-			m_pControlDialog->SetUnitControls(it->sliderSpdValue);			
+			m_pControlDialog->SetUnitControls(it->sliderSpdValue);	
+			startLat = it->lat;
+			startLon = it->lon;
 			break;
 		}
 	}
 
 	double scale_factor = GetOCPNGUIToolScaleFactor_PlugIn();
-	JumpToPosition(frigateLat, frigateLon, scale_factor);
+	JumpToPosition(startLat, startLon, scale_factor);
 
 	int m_interval = 500;
 	m_timerFrigate.Start(m_interval, wxTIMER_CONTINUOUS); // start timer
@@ -409,8 +393,8 @@ void onavsimUIDialog::StartControlDriving() {
 
 void onavsimUIDialog::About(wxCommandEvent& event)
 {
-	
-	wxMessageBox("Not yet implemented");
+	SaveNavUnitsToXml(myNavObjects, "theFleet.xml");
+	//wxMessageBox("Not yet implemented");
 	event.Skip();
 }
 
@@ -462,35 +446,44 @@ void onavsimUIDialog::OnRemoveNavObject(wxCommandEvent& event) {
 		return;
 	}
 
-	int pos = 0;
-	int c;
-
-	for (c = 0; c < m_checkListNavalUnits->GetCount(); c++) {
-		if (m_checkListNavalUnits->IsSelected(c)) {
-			itemChecked = m_checkListNavalUnits->GetStringSelection();
-			break;
-		}
-	}
-
+	
+	long lSelectedItem = m_listNavalUnits->GetNextItem(-1, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
+	itemChecked = m_listNavalUnits->GetItemText(lSelectedItem);
+	//wxMessageBox(itemChecked);
+	
+	int c = 0;
 	for (std::vector<NavObject>::iterator it = myNavObjects.begin(); it != myNavObjects.end(); it++) {
 
 		if (it->name == itemChecked) {			
+			EraseFromUnorderedByIndex(myNavObjects, c);
 			break;
 		}
-		pos++;
+		c++;
+	}	
+	
+	long index = lSelectedItem;
+	long count = m_listNavalUnits->GetItemCount();
+
+	if (count == 1)//if there is only one item in the list, deleted even if not selected
+	{
+		m_listNavalUnits->DeleteItem(0);
+		m_listNavalUnits->Refresh();
+		return;
+	}
+	if (index < 0) //No item selected or empty list
+	{
+		return;
 	}
 
-	EraseFromUnorderedByIndex(myNavObjects, pos);
+	m_listNavalUnits->DeleteItem(index);
+	m_listNavalUnits->Refresh();
 
-	m_checkListNavalUnits->Delete(c);
-	
 	event.Skip();
 
 	RequestRefresh(pParent);
 }
 
 void onavsimUIDialog::CreateNavUnit(wxString unitname, wxString unittype) {
-
 	
 	NavObject newNavObj;
 	newNavObj.name = unitname;
@@ -507,21 +500,149 @@ void onavsimUIDialog::CreateNavUnit(wxString unitname, wxString unittype) {
 
 	//wxMessageBox(unitname);
 
-	wxArrayString myItems;
-	myItems.Add(unitname);
-
-	int c;
-	for (c = 0; c < m_checkListNavalUnits->GetCount(); c++) {
-		m_checkListNavalUnits->Check(c, false);
-	}
-
-	m_checkListNavalUnits->InsertItems(myItems, 0);
-	m_checkListNavalUnits->SetSelection(0);
-	m_checkListNavalUnits->Check(0, true);
+	long c = m_listNavalUnits->GetItemCount();
+	
+	m_listNavalUnits->InsertItem(c, newNavObj.name);		
+	m_listNavalUnits->SetItemState(c, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
 
 	RequestRefresh(pParent);
-
 }
+
+double AttributeDouble(TiXmlElement *e, const char *name, double def)
+{
+	const char *attr = e->Attribute(name);
+	if (!attr)
+		return def;
+	char *end;
+	double d = strtod(attr, &end);
+	if (end == attr)
+		return def;
+	return d;
+}
+
+int AttributeInt(TiXmlElement *e, const char *name, int def)
+{
+	const char *attr = e->Attribute(name);
+	if (!attr)
+		return def;
+	char *end;
+	long d = strtol(attr, &end, 10);
+	if (end == attr)
+		return def;
+	return d;
+}
+
+#define FAIL(X) do { error = X; goto failed; } while(0)
+
+
+void onavsimUIDialog::SaveNavUnitsToXml(vector<NavObject> &myNavObjects, wxString filename)
+{
+	TiXmlDocument doc;
+	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "utf-8", "");
+	doc.LinkEndChild(decl);
+
+	TiXmlElement * root = new TiXmlElement("FleetData");
+	doc.LinkEndChild(root);
+
+	for (std::vector<NavObject>::iterator it = myNavObjects.begin(); it != myNavObjects.end(); it++) {
+		TiXmlElement *c = new TiXmlElement("Unit");
+
+		c->SetAttribute("UnitName", it->name. mb_str());
+		c->SetAttribute("UnitType", it->type.mb_str());		
+		c->SetAttribute("Lat", wxString::Format(_T("%.5f"), it->lat).mb_str());
+		c->SetAttribute("Lon", wxString::Format(_T("%.5f"), it->lon).mb_str());
+		c->SetAttribute("Spd", wxString::Format(_T("%.5f"), it->spd).mb_str());
+		c->SetAttribute("Cse", wxString::Format(_T("%.5f"), it->dir).mb_str());
+		c->SetAttribute("MMSI", wxString::Format(_T("%i"), it->mmsi).mb_str());
+		c->SetAttribute("sliderSpdValue", wxString::Format(_T("%i"), it->sliderSpdValue).mb_str());
+		c->SetAttribute("sliderDirValue", wxString::Format(_T("%i"), it->sliderDirValue).mb_str());
+
+		root->LinkEndChild(c);
+	}
+
+	wxString layer_path = plugin->StandardPath();
+
+	if (!doc.SaveFile((layer_path + filename).mb_str()))
+		wxLogMessage(_("oNavSim") + wxString(_T(": ")) + _("Failed to save xml file: ") + filename);
+}
+
+void onavsimUIDialog::LoadNavUnitsFromXml(vector<NavObject> &myFleetObjects, wxString fleetUnits)
+{
+	TiXmlDocument doc;
+	wxString name;
+	wxString error;
+	wxString fleetUnits_path = plugin->StandardPath();
+
+	//wxMessageBox(fleetUnits_path + fleetUnits);
+	myFleetObjects.clear();
+
+	if (!doc.LoadFile((fleetUnits_path + fleetUnits).mb_str()))
+		FAIL(_("Failed to load fleet units"));
+	else {
+		TiXmlElement* root = doc.RootElement();
+
+		if (strcmp(root->Value(), "FleetData"))
+			FAIL(_("Invalid xml file"));
+
+		for (TiXmlElement* e = root->FirstChildElement(); e; e = e->NextSiblingElement()) {
+			if (!strcmp(e->Value(), "Unit")) {
+				name = wxString::FromUTF8(e->Attribute("UnitName"));
+				NavObject myUnit;
+				myUnit.name = name;
+				myUnit.type = wxString::FromUTF8(e->Attribute("UnitType"));				
+				myUnit.lat = AttributeDouble(e, "Lat", 0);
+				myUnit.lon = AttributeDouble(e, "Lon", 0);
+				myUnit.spd = AttributeDouble(e, "Spd", 0);
+				myUnit.dir = AttributeDouble(e, "Cse", 0);
+				myUnit.mmsi = AttributeInt(e, "MMSI", 0);
+				myUnit.sliderSpdValue = AttributeInt(e, "sliderSpdValue", 0);
+				myUnit.sliderDirValue = AttributeInt(e, "sliderDirValue", 0);				
+
+				myFleetObjects.push_back(myUnit);
+
+			}
+			else
+				FAIL(_("Unrecognized xml node: ") + wxString::FromUTF8(e->Value()));
+		}
+	}
+	return;
+failed:
+	wxLogMessage(_("onavsimuidialog") + wxString(_T(" : ")) + error);
+}
+
+void onavsimUIDialog::OnPopulate(wxCommandEvent& event) {
+
+	LoadNavUnitsFromXml(myFleetObjects, "theFleet.xml");		
+	
+	m_listNavalUnits->DeleteAllItems();
+
+	myNavObjects.clear();
+
+	
+	for (std::vector<NavObject>::iterator it = myFleetObjects.begin(); it != myFleetObjects.end(); it++) {
+	
+		myNavObjects.push_back(*it);
+		//wxMessageBox(it->name);
+	
+	}
+
+	int c = myNavObjects.size();
+	wxString sz = wxString::Format("%i", c);
+	//wxMessageBox(sz);
+
+	
+	for (std::vector<NavObject>::iterator it = myNavObjects.begin(); it != myNavObjects.end(); it++) {			
+		long c = m_listNavalUnits->GetItemCount();
+		m_listNavalUnits->InsertItem(c,it->name);
+		m_listNavalUnits->SetItemState(c, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);		
+	}
+
+	//m_listNavalUnits->SetItemState(0, wxLIST_STATE_SELECTED, wxLIST_STATE_SELECTED);
+	
+
+	
+}
+
 //
 // The controller for the units
 //

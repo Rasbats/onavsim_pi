@@ -20,10 +20,15 @@ onavsimUIDialogBase::onavsimUIDialogBase( wxWindow* parent, wxWindowID id, const
 	wxStaticBoxSizer* sbSizerControls;
 	sbSizerControls = new wxStaticBoxSizer( new wxStaticBox( this, wxID_ANY, _("Help") ), wxHORIZONTAL );
 
-	m_buttonHelp = new wxButton( sbSizerControls->GetStaticBox(), wxID_ANY, _("Help"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_buttonHelp = new wxButton( sbSizerControls->GetStaticBox(), wxID_ANY, _("Save to XML"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_buttonHelp->SetBackgroundColour( wxColour( 255, 255, 0 ) );
 
 	sbSizerControls->Add( m_buttonHelp, 0, wxALIGN_CENTER_VERTICAL|wxALL, 5 );
+
+	m_buttonPopulate = new wxButton( sbSizerControls->GetStaticBox(), wxID_ANY, _("Populate"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_buttonPopulate->SetBackgroundColour( wxColour( 255, 255, 0 ) );
+
+	sbSizerControls->Add( m_buttonPopulate, 0, wxALL, 5 );
 
 
 	bSizerMain->Add( sbSizerControls, 0, wxEXPAND, 5 );
@@ -73,11 +78,8 @@ onavsimUIDialogBase::onavsimUIDialogBase( wxWindow* parent, wxWindowID id, const
 	wxBoxSizer* bSizer9;
 	bSizer9 = new wxBoxSizer( wxVERTICAL );
 
-	wxArrayString m_checkListNavalUnitsChoices;
-	m_checkListNavalUnits = new wxCheckListBox( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, m_checkListNavalUnitsChoices, wxLB_SINGLE );
-	m_checkListNavalUnits->SetFont( wxFont( 12, wxFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, wxT("Arial") ) );
-
-	bSizer9->Add( m_checkListNavalUnits, 0, wxALL|wxEXPAND, 5 );
+	m_listNavalUnits = new wxListCtrl( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLC_LIST|wxLC_SINGLE_SEL );
+	bSizer9->Add( m_listNavalUnits, 0, wxALL|wxEXPAND, 5 );
 
 
 	bSizerMain->Add( bSizer9, 1, wxEXPAND, 5 );
@@ -94,11 +96,12 @@ onavsimUIDialogBase::onavsimUIDialogBase( wxWindow* parent, wxWindowID id, const
 	this->Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( onavsimUIDialogBase::OnClose ) );
 	this->Connect( wxEVT_SIZE, wxSizeEventHandler( onavsimUIDialogBase::OnSize ) );
 	m_buttonHelp->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::About ), NULL, this );
+	m_buttonPopulate->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnPopulate ), NULL, this );
 	m_buttonCreate->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnCreateNavObject ), NULL, this );
 	m_buttonRemove->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnRemoveNavObject ), NULL, this );
 	m_buttonStart->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnStartDriving ), NULL, this );
 	m_buttonStop->Connect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnStopDriving ), NULL, this );
-	m_checkListNavalUnits->Connect( wxEVT_COMMAND_LISTBOX_SELECTED, wxCommandEventHandler( onavsimUIDialogBase::OnCheckNavalUnit ), NULL, this );
+	m_listNavalUnits->Connect( wxEVT_COMMAND_LIST_ITEM_SELECTED, wxListEventHandler( onavsimUIDialogBase::OnListNavalUnit ), NULL, this );
 	this->Connect( wxID_ANY, wxEVT_TIMER, wxTimerEventHandler( onavsimUIDialogBase::OnTimer ) );
 }
 
@@ -108,11 +111,12 @@ onavsimUIDialogBase::~onavsimUIDialogBase()
 	this->Disconnect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler( onavsimUIDialogBase::OnClose ) );
 	this->Disconnect( wxEVT_SIZE, wxSizeEventHandler( onavsimUIDialogBase::OnSize ) );
 	m_buttonHelp->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::About ), NULL, this );
+	m_buttonPopulate->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnPopulate ), NULL, this );
 	m_buttonCreate->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnCreateNavObject ), NULL, this );
 	m_buttonRemove->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnRemoveNavObject ), NULL, this );
 	m_buttonStart->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnStartDriving ), NULL, this );
 	m_buttonStop->Disconnect( wxEVT_COMMAND_BUTTON_CLICKED, wxCommandEventHandler( onavsimUIDialogBase::OnStopDriving ), NULL, this );
-	m_checkListNavalUnits->Disconnect( wxEVT_COMMAND_LISTBOX_SELECTED, wxCommandEventHandler( onavsimUIDialogBase::OnCheckNavalUnit ), NULL, this );
+	m_listNavalUnits->Disconnect( wxEVT_COMMAND_LIST_ITEM_SELECTED, wxListEventHandler( onavsimUIDialogBase::OnListNavalUnit ), NULL, this );
 	this->Disconnect( wxID_ANY, wxEVT_TIMER, wxTimerEventHandler( onavsimUIDialogBase::OnTimer ) );
 
 }

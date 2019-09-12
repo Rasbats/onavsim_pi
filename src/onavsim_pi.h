@@ -89,14 +89,18 @@ public:
       void ShowPreferencesDialog( wxWindow* parent );
       void OnToolbarToolCallback(int id);
 
+
 // Other public methods
       void SetonavsimDialogX    (int x){ m_onavsim_dialog_x = x;};
       void SetonavsimDialogY    (int x){ m_onavsim_dialog_y = x;}
       void SetonavsimDialogSizeX(int x){ m_onavsim_dialog_sx = x;}
       void SetonavsimDialogSizeY(int x){ m_onavsim_dialog_sy = x;}
-      void SetColorScheme(PI_ColorScheme cs);	  
+      void SetColorScheme(PI_ColorScheme cs);	
+
 
       void OnonavsimDialogClose();
+
+	  wxString StandardPath();
 
       bool GetCopyRate() { return  m_bCopyUseRate; }
       bool GetCopyDirection() { return  m_bCopyUseDirection; }
@@ -113,6 +117,7 @@ public:
 	  NavUnitDialogBase * myNavUnitDialog;
 
       onavsimUIDialog     *m_ponavsimDialog;
+	  int              m_onavsim_dialog_x, m_onavsim_dialog_y;
 
 private:
       bool LoadConfig(void);
@@ -128,7 +133,7 @@ private:
       int              m_leftclick_tool_id;
 	  int				m_position_menu_id;
 
-      int              m_onavsim_dialog_x, m_onavsim_dialog_y;
+      
       int              m_onavsim_dialog_sx, m_onavsim_dialog_sy;
 
 	  double m_cursor_lat;

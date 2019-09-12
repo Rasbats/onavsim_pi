@@ -59,16 +59,16 @@ SET(SRC_onavsim
         src/onavsimUIDialog.h
         src/icons.h
         src/icons.cpp
-        src/tcmgr.cpp
-        src/timectrl.cpp
-        src/timectrl.h
-        src/tcmgr.h
-        src/tinystr.h
-	src/tinyxml.h
-    )
-
+        src/tinyxml/tinyxml.cpp
+        src/tinyxml/tinyxmlparser.cpp
+        src/tinyxml/tinyxmlerror.cpp
+	    src/tinyxml/tinyxml.h
+		src/tinyxml/tinystr.h
+ )
 
 ADD_LIBRARY(${PACKAGE_NAME} SHARED ${SRC_onavsim})
+
+ADD_DEFINITIONS(-DTIXML_USE_STL)
 
 INCLUDE("cmake/PluginInstall.cmake")
 INCLUDE("cmake/PluginLocalization.cmake")

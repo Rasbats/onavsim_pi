@@ -21,7 +21,7 @@
 #include <wx/settings.h>
 #include <wx/sizer.h>
 #include <wx/statbox.h>
-#include <wx/checklst.h>
+#include <wx/listctrl.h>
 #include <wx/timer.h>
 #include <wx/dialog.h>
 #include <wx/checkbox.h>
@@ -48,21 +48,23 @@ class onavsimUIDialogBase : public wxDialog
 		virtual void OnClose( wxCloseEvent& event ) { event.Skip(); }
 		virtual void OnSize( wxSizeEvent& event ) { event.Skip(); }
 		virtual void About( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnPopulate( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnCreateNavObject( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnRemoveNavObject( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnStartDriving( wxCommandEvent& event ) { event.Skip(); }
 		virtual void OnStopDriving( wxCommandEvent& event ) { event.Skip(); }
-		virtual void OnCheckNavalUnit( wxCommandEvent& event ) { event.Skip(); }
+		virtual void OnListNavalUnit( wxListEvent& event ) { event.Skip(); }
 		virtual void OnTimer( wxTimerEvent& event ) { event.Skip(); }
 
 
 	public:
 		wxButton* m_buttonHelp;
+		wxButton* m_buttonPopulate;
 		wxButton* m_buttonCreate;
 		wxButton* m_buttonRemove;
 		wxButton* m_buttonStart;
 		wxButton* m_buttonStop;
-		wxCheckListBox* m_checkListNavalUnits;
+		wxListCtrl* m_listNavalUnits;
 		wxTimer m_timerFrigate;
 
 		onavsimUIDialogBase( wxWindow* parent, wxWindowID id = wxID_ANY, const wxString& title = wxEmptyString, const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( -1,-1 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );

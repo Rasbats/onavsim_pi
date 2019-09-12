@@ -27,7 +27,6 @@
 #include <map>
 #include <wx/string.h>
 #include "bbox.h"
-#include "tcmgr.h"
 
 #ifdef ocpnUSE_GL
 #ifdef __WXMSW__
